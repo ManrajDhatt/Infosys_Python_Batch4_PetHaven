@@ -1,115 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}PetHaven{% endblock %}</title>  
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}PetHaven{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    {%block style %}
+
+    {% endblock %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+
 </head>
+
 <body>
     {% if current_user.is_authenticated %}
-    <div class="burger" id="burger-menu">
-        &#9776; 
-    </div>
-        <div class="navbar" id="navbar">
-            <h2>Welcome, {{ current_user.user_name }}</h2>
-            
-           
-            <div class="nav-right">
-                {% if current_user.is_admin %}
-                    <a href="{{ url_for('add_event') }}" class="add-event-btn"> Add  Event</a>
-           
-                    {% endif %}
-                <div class="notification">
-                    <i class="fas fa-bell fa-2x"></i>
-                    <span class="badge">0</span>
+    <div class="burger" id="burger-menu">&#9776;</div>
+    <div class="navbar" id="navbar">
+        <h2>Welcome, {{ current_user.user_name }}</h2>
+
+        <div class="nav-right">
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('add_event') }}" class="add-event-btn">
+                Add Event</a>
+
+            {% endif %}
+            <div class="notification">
+                <i class="fas fa-bell fa-2x"></i>
+                <span class="badge">0</span>
+            </div>
+
+            <div class="profile-dropdown">
+                <div class="profile" onclick="toggleDropdown()">
+                    <div class="profile-pic">{{ current_user.user_name[0] }}</div>
                 </div>
-                
-                <div class="profile-dropdown">
-                    <div class="profile" onclick="toggleDropdown()">
-                        <div class="profile-pic">{{ current_user.user_name[0] }}</div>
-                    </div>
-                    
-                    <div class="dropdown-menu" id="profileDropdown">
-                        <p class="dropdown-username">{{ current_user.user_name }}</p>
-                        <div class="settings">
-                            <p>
-                                <a href="{{url_for('settings')}}">
+
+                <div class="dropdown-menu" id="profileDropdown">
+                    <p class="dropdown-username">{{ current_user.user_name }}</p>
+                    <div class="settings">
+                        <p>
+                            <a href="{{url_for('settings')}}">
                                 <i class="fas fa-cog"></i>
                                 Settings
                             </a>
-                            </p>
-                        </div>
-                        <a href="{{ url_for('logout') }}"> <i class="fas fa-lock"></i> Logout</a>
+                        </p>
                     </div>
-    
+                    <a href="{{ url_for('logout') }}">
+                        <i class="fas fa-lock"></i> Logout</a>
                 </div>
             </div>
-          
-            
-    
-            </div>
-            <div class="flash-container">
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="flash-message {{ category }}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
-            </div>
-            <!-- Sidebar -->
-            <div class="sidebar" id="sidebar">
-                <div class="logo">
-                    <i class="fas fa-paw"></i>
-                    <h2>PetHaven</h2>
-                </div>
-                <ul class="nav-menu">
-                    <li class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
-                        <a href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a>
-                    </li>
-                    <li class="nav-item {% if request.endpoint == 'competitions' %}active{% endif %}">
-                        <a href="{{ url_for('competitions') }}"><i class="fas fa-trophy"></i> Competitions</a>
-                    </li>
-                    <li class="nav-item {% if request.endpoint == 'registrations' or request.endpoint == 'all_registrations' %}active{% endif %}">
-                        {% if current_user.is_admin %}
-                            <a href="{{ url_for('all_registrations') }}"><i class="fas fa-list-alt"></i> All Registrations</a>
-                        {% else %}
-                            <a href="{{ url_for('registrations') }}"><i class="fas fa-calendar-check"></i> My Registrations</a>
-                        {% endif %}
-                    </li>
-                    {% if current_user.is_admin %}
-                    <li class="nav-item {% if request.endpoint == 'manage_results' %}active{% endif %}">
-                        <a href="{{ url_for('manage_results') }}"><i class="fas fa-clipboard-list"></i> Manage Results</a>
-                    </li>
-                    {% endif %}
-            
-                    {% if not current_user.is_admin %}
-                    <li class="nav-item {% if request.endpoint == 'user_results' %}active{% endif %}">
-                        <a href="{{ url_for('user_results') }}"><i class="fas fa-poll"></i> My Results</a>
-                    </li>
-                    {% endif %}
-
-                    {% if current_user.is_admin %}
-                    <li class="nav-item {% if request.endpoint == 'event_statistics' %}active{% endif %}">
-                        <a href="{{ url_for('event_statistics') }}">
-                            <i class="fas fa-chart-bar"></i> View Stats
-                        </a>
-                    </li>
-                    
-                    {% endif %}    
-                </ul>
-            </div>
-    {% endif %}
-    <div class="main-content">
-        {% block content %}{% endblock %}
+        </div>
     </div>
+    <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+        messages %} {% for category, message in messages %}
+        <div class="flash-message {{ category }}">{{ message }}</div>
+        {% endfor %} {% endif %} {% endwith %}
+    </div>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="fas fa-paw"></i>
+            <h2>PetHaven</h2>
+        </div>
+        <ul class="nav-menu">
+            {% if current_user.is_petOwner %}
+            <li class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                <a href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a>
+            </li>
+            <li class="nav-item {% if request.endpoint == 'competitions' %}active{% endif %}">
+                <a href="{{ url_for('competitions') }}"><i class="fas fa-trophy"></i> Competitions</a>
+            </li>
+
+            <li class="nav-item {% if request.endpoint == 'registrations' %}active{% endif %}">
+                <a href="{{ url_for('registrations') }}"><i class="fas fa-calendar-check"></i> My Registrations</a>
+            </li>
+
+            <li class="nav-item {% if request.endpoint == 'user_results' %}active{% endif %}">
+                <a href="{{ url_for('user_results') }}"><i class="fas fa-poll"></i> My Results</a>
+            </li>
+
+            {% endif %}
+
+
+            {% if current_user.is_admin %}
+
+            <li class="nav-item {% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+                <a href="{{ url_for('admin_dashboard') }}"><i class="fas fa-home"></i> Dashboard / All Events</a>
+            </li>
+
+            <li class="nav-item {% if request.endpoint == 'manage_sp' %}active{% endif %}">
+                <a href="{{ url_for('manage_sp') }}"><i class="fas fa-users"></i> Manage Service Provider</a>
+            </li>
+
+            <li class="nav-item {% if request.endpoint == 'all_registrations' %}active{% endif %}">
+                <a href="{{ url_for('all_registrations') }}"><i class="fas fa-list-alt"></i> All Registrations</a>
+            </li>
+
+            <li class="nav-item {% if request.endpoint == 'manage_results' %}active{% endif %}">
+                <a href="{{ url_for('manage_results') }}"><i class="fas fa-clipboard-list"></i> Manage Results</a>
+            </li>
+
+            <li class="nav-item {% if request.endpoint == 'event_statistics' %}active{% endif %}">
+                <a href="{{ url_for('event_statistics') }}">
+                    <i class="fas fa-chart-bar"></i> View Stats
+                </a>
+            </li>
+
+            {% endif %}
+
+
+            {% if current_user.is_serviceProvider %}
+            <li class="nav-item {% if request.endpoint == 'service_provider_dashboard' %}active{% endif %}">
+                <a href="{{ url_for('service_provider_dashboard') }}">
+                    <i class="fas fa-chart-bar"></i> DashBoard
+                </a>
+            </li>
+
+
+
+            <!-- Service Provider Routes goes here  -->
+            <li> Service Provider Routes Goes Here </li>
+            {% endif %}
+
+            <li class="nav-item {% if request.endpoint == 'logout' %}active{% endif %}">
+                <a href="{{ url_for('logout') }}">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
+    <div class="main-content">{% block content %}{% endblock %}</div>
 
     <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
+
 </html>

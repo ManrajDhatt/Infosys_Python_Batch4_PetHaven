@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{%block style%}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/service_provider_dashboard.css') }}">
+{% endblock %}
+
+{% block title %}Service Provider Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-content">
+    <h3>Welcome, <span id="username">Service Provider</span>!</h3>
+    <p>Manage your services and track customer appointments.</p>
+
+    <div class="grid">
+        <div class="card">
+            <i class="fas fa-calendar-check card-icon"></i>
+            <h5>Appointments</h5>
+            <p>View and manage your upcoming bookings.</p>
+            <a href="#appointments" class="btn btn-success">View</a>
+        </div>
+        <div class="card">
+            <i class="fas fa-tools card-icon"></i>
+            <h5>Manage Services</h5>
+            <p>Update and modify available services.</p>
+            <a href="#manage_services" class="btn btn-success">Manage</a>
+        </div>
+        <div class="card">
+            <i class="fas fa-comments card-icon"></i>
+            <h5>Customer Reviews</h5>
+            <p>Check feedback and improve service.</p>
+            <a href="#reviews" class="btn btn-success">View</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

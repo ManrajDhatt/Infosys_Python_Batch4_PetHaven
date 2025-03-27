@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Provider Dashboard - Pet Haven</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <link rel="stylesheet" href="/static/service_provider_dashboard.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="fas fa-paw"></i>
+            <h2>PetHaven</h2>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item active" onclick="navigateTo('/service_provider_dashboard')"><i class="fas fa-home"></i> Dashboard</li>
+            <li class="nav-item" onclick="navigateTo('/appointments')"><i class="fas fa-calendar-check"></i> Appointments</li>
+            <li class="nav-item" onclick="navigateTo('/manage_services')"><i class="fas fa-tools"></i> Manage Services</li>
+            <li class="nav-item" onclick="navigateTo('/reviews')"><i class="fas fa-comments"></i> Customer Reviews</li>
+            <li class="nav-item" onclick="navigateTo('/settings')"><i class="fas fa-cog"></i> Settings</li>
+            <li class="nav-item logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="navbar">
+            <h2>Service Provider Dashboard</h2>
+            <div class="nav-right">
+                <div class="notification">
+                    <i class="fas fa-bell fa-2x"></i>
+                    <span class="badge" id="notification-count">5</span>
+                </div>
+                <div class="profile">
+                    <div class="profile-pic">SP</div>
+                    <span id="provider-name">Service Provider</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <h3>Welcome, <span id="username">Service Provider</span>!</h3>
+            <p>Manage your services and track customer appointments.</p>
+
+            <div class="grid">
+                <div class="card">
+                    <i class="fas fa-calendar-check card-icon"></i>
+                    <h5>Appointments</h5>
+                    <p>View and manage your upcoming bookings.</p>
+                    <a href="/appointments" class="btn btn-success">View</a>
+                </div>
+                <div class="card">
+                    <i class="fas fa-tools card-icon"></i>
+                    <h5>Manage Services</h5>
+                    <p>Update and modify available services.</p>
+                    <a href="/manage_services" class="btn btn-success">Manage</a>
+                </div>
+                <div class="card">
+                    <i class="fas fa-comments card-icon"></i>
+                    <h5>Customer Reviews</h5>
+                    <p>Check feedback and improve service.</p>
+                    <a href="/reviews" class="btn btn-success">View</a>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>&copy; 2025 PetHaven. All Rights Reserved.</p>
+            <ul>
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms & Conditions</a></li>
+                <li><a href="#">Contact Support</a></li>
+            </ul>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/service_provider_dashboard.js"></script>
+    <script>
+        function navigateTo(url) {
+            window.location.href = url;
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = '/logout';
+            }
+        }
+    </script>
+</body>
+</html>

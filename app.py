@@ -6,7 +6,7 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from sqlalchemy import func
 
-from models import Result, db, User, Event, Registration,insert_initial_data
+from models import Result, db, User, Event, Registration, ServiceProvider, insert_initial_data, insert_seed_data
 
 from forms import RegistrationForm, LoginForm, EventForm, RegistrationEventForm, ResultForm
 from config import Config
@@ -19,7 +19,7 @@ from dotenv import load_dotenv
 import cloudinary.uploader
 from flask_migrate import Migrate
 from scheduler import start_scheduler
-from app import db
+# from app import db
 from datetime import datetime, timezone
 
 
@@ -46,10 +46,10 @@ migrate = Migrate(app, db)
 # Create database tables
 with app.app_context():
     db.create_all()
-    insert_initial_data()
+    insert_initial_data()  #SEED THE DATABASE
+    insert_seed_data()    # SEED THE DATABASE
 
-
-
+ 
     # Hardcoded Admin
     # ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD") 
     # hashed_pw = bcrypt.generate_password_hash(ADMIN_PASSWORD).decode('utf-8')
@@ -66,60 +66,323 @@ with app.app_context():
 
 
 
-
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(user_id)
 
 def is_admin():
     return current_user.is_authenticated and current_user.user_type is None
+def is_petOwner():
+    return current_user.is_authenticated and current_user.user_type == 'Pet Owner'
+def is_serviceProvider():
+    return current_user.is_authenticated and current_user.user_type == 'Service Provider'
 
-
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=['POST'])
 def register():
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        existing_user = User.query.filter_by(email_id=form.email.data).first()  #Check if email exists
-        if existing_user:
-            flash('Email is already registered. Please log in.', 'danger')
-            return redirect(url_for('login'))  # Redirect to login if email exists
+    try:
+        print(request.form,1234567)
         
-        hashed_pw = generate_password_hash(form.password.data,method='scrypt')
-        user = User(
-            user_name=form.username.data,
-            email_id=form.email.data,
-            password=hashed_pw,
-          # **************NEED TO BE UPDATED**********
-            user_type='pet_owner'
-            )
-        db.session.add(user)
+        
+        user_name = request.form['username']
+        email = request.form['email']
+        password = generate_password_hash(request.form['password'])
+        user_type = request.form['user_type']
+
+        existing_user = User.query.filter_by(email_id=email).first()
+        if existing_user:
+            return jsonify({"message": "Email already registered!", "status": "error"}), 400  # Return JSON
+
+        # Create new user
+        new_user = User(user_name=user_name, email_id=email, password=password, user_type=user_type)
+        db.session.add(new_user)
         db.session.commit()
-        flash('Account created! You can now login.', 'success')
-        return redirect(url_for('login'))
-    return render_template('register.html', form=form)
+
+        # send_email("Welcome to PetHaven", email, f"Hello {user_name}, your registration was successful!")
+
+        if user_type == 'Service Provider':
+            uploaded_file = request.files.get('document_folder') 
+            if uploaded_file and uploaded_file.filename != '':
+                filename = secure_filename(uploaded_file.filename)  # Secure the filename
+                user_folder = os.path.join(app.config['UPLOAD_FOLDER'], email)
+        
+                if not os.path.exists(user_folder):
+                    os.makedirs(user_folder)  # Create user-specific directory
+        
+                file_path = os.path.join(user_folder, filename)
+                uploaded_file.save(file_path)  # Save the file to static/uploads/<email>/
+
+            service_provider = ServiceProvider(
+                user_id= new_user.user_id,
+                service_name = request.form['service_id'],
+                name=request.form['username'],
+                address=request.form['state'] + ',' + request.form['city'],
+                hourly_rate=request.form['hourly_rate'],
+                experience=request.form['experience'],
+                description=request.form['description'],
+                document_folder=os.path.join(app.config['UPLOAD_FOLDER'], email),
+                status='PENDING'
+            )
+            
+            db.session.add(service_provider)
+            db.session.commit()
+
+            # send_email("Service Provider Registration Pending", email, "Your registration is pending admin approval.")
+        
+        return jsonify({"message": "Registration successful!", "status": "success", "redirect": url_for('reg') }), 200  # Return success JSON
+
+    except Exception as e:
+        return jsonify({"message": str(e), "status": "error"}), 500  # Handle errors
 
 
 
+@app.route('/check_admin')
+def check_admin():
+    admin = User.query.filter_by(user_name="Admin@123").first()
+    if admin:
+        return f"Admin exists: {admin.user_name}, {admin.email_id}, user_type: {admin.user_type}"
+    else:
+        return "Admin does not exist"
 
-@app.route('/', methods=['GET', 'POST'])
+
+# TEAM - 3
+# @app.route('/register', methods=['GET', 'POST'])
+# def register():
+#     form = RegistrationForm()
+#     if form.validate_on_submit():
+#         existing_user = User.query.filter_by(email_id=form.email.data).first()  #Check if email exists
+#         if existing_user:
+#             flash('Email is already registered. Please log in.', 'danger')
+#             return redirect(url_for('login'))  # Redirect to login if email exists
+        
+#         hashed_pw = generate_password_hash(form.password.data,method='scrypt')
+#         user = User(
+#             user_name=form.username.data,
+#             email_id=form.email.data,
+#             password=hashed_pw,
+#           # **************NEED TO BE UPDATED**********
+#             user_type='pet_owner'
+#             )
+#         db.session.add(user)
+#         db.session.commit()
+#         flash('Account created! You can now login.', 'success')
+#         return redirect(url_for('login'))
+#     return render_template('register.html', form=form)
+
+
+
+# TEAM - 3
+# @app.route('/', methods=['GET', 'POST'])
+# def home():
+#     return render_template('index.html')
+
+@app.route('/', methods=['GET'])
 def home():
+    # return render_template('Auth.html')
     return render_template('index.html')
 
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if current_user.is_authenticated:  
-        return redirect(url_for('dashboard'))
-    
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email_id=form.email.data).first()
-        if user and check_password_hash(user.password, form.password.data):
-            login_user(user)
-            return redirect(url_for('dashboard'))
-        flash('Login failed. Check credentials.', 'danger')
-    return render_template('login.html', form=form)
 
+# @app.route('/login', methods=['GET', 'POST'])
+# def login():
+#     if current_user.is_authenticated:  
+#         return redirect(url_for('dashboard'))
+    
+#     form = LoginForm()
+#     if form.validate_on_submit():
+#         user = User.query.filter_by(email_id=form.email.data).first()
+#         if user and check_password_hash(user.password, form.password.data):
+#             login_user(user)
+#             return redirect(url_for('dashboard'))
+#         flash('Login failed. Check credentials.', 'danger')
+#     return render_template('login.html', form=form)
+
+
+@app.route('/reg')
+def reg():
+    return render_template('reg.html')
+
+
+@app.route('/login', methods=['GET','POST'])
+def login():
+    email = request.form.get('email')
+    password = request.form.get('password')
+
+    user = User.query.filter_by(email_id=email).first()
+    print(12345667)
+    if user and check_password_hash(user.password, password):
+        login_user(user)
+        session['user_id'] = user.user_id
+        session['user_type'] = user.user_type
+
+        # send_email("Login Alert", email, f"Hello {user.user_name}, a login attempt was made on your account.")
+
+        # Determine redirection URL based on user type
+        if user.user_type == 'Pet Owner':
+            # dashboard_url = url_for('customer_dashboard')
+            dashboard_url = url_for('dashboard')
+        elif user.user_type == 'Service Provider':
+            dashboard_url = url_for('dashboard')
+            
+            # dashboard_url = url_for('service_provider_dashboard')
+        else:
+            dashboard_url = url_for('admin_dashboard')
+
+            # dashboard_url = url_for('admin_dashboard')
+
+        return jsonify({
+            "status": "success",
+            "message": "Login successful!",
+            "redirect": dashboard_url
+        }), 200
+    else:
+        return jsonify({
+            "status": "error",
+            "message": "Invalid credentials! Please try again."
+        }), 401
+
+
+
+@app.route('/admin_login', methods=['GET','POST'])
+def admin_login():
+    print("Login attempt received")
+    print("Form data:", request.form)
+    
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    print(f"Attempting login with: {username}")
+    
+    admin = User.query.filter_by(user_name=username, user_type=None).first()
+    print("Admin found:", admin)
+    
+    if admin and check_password_hash(admin.password, password):
+        login_user(admin)
+        session['user_id'] = admin.user_id
+        session['user_type'] = 'Admin'
+        
+        return jsonify({
+            "status": "success",
+            "message": "Admin login successful!",
+            "redirect": url_for('admin_dashboard')
+        })
+    
+    return jsonify({
+        "status": "error",
+        "message": f"Invalid admin credentials! Username: {username}"
+    })
+
+#  ---------------------- RESET PASSWORD FEATURE ---------------------- #
+def generate_reset_token():
+    return secrets.token_urlsafe(20)
+
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+        user = User.query.filter_by(email_id=email).first()
+        
+        if user:
+            reset_token = generate_reset_token()
+            session[f'reset_token_{email}'] = reset_token  # Store the token temporarily
+            reset_link = url_for('reset_password', email=email, token=reset_token, _external=True)
+            print(reset_link,123890)
+            # Send reset email
+            msg = Message("Password Reset Request", sender="your_email@gmail.com", recipients=[email])
+            msg.body = f"Click the link below to reset your password: {reset_link}"
+            mail.send(msg)
+            
+            flash("A password reset link has been sent to your email.")
+        else:
+            flash("Email not found!")
+    
+    return render_template('forgot_password.html')
+
+@app.route('/reset_password/<email>/<token>', methods=['GET', 'POST'])
+def reset_password(email, token):
+    stored_token = session.get(f'reset_token_{email}')
+    
+    if stored_token != token:
+        flash("Invalid or expired reset link!")
+        return redirect(url_for('home'))
+    
+    user = User.query.filter_by(email_id=email).first()
+    if not user:
+        flash("Invalid reset request!")
+        return redirect(url_for('home'))
+    
+    if request.method == 'POST':
+        new_password = generate_password_hash(request.form['new_password'])
+        user.password = new_password
+        db.session.commit()
+        session.pop(f'reset_token_{email}', None)  # Remove the token after use
+        flash("Password reset successful! You can now log in.")
+        return redirect(url_for('home'))
+    
+    return render_template('reset_password.html', email=email, token=token)
+
+# ---------------------- ADMIN DASHBOARD ---------------------- #
+
+@app.route('/admin/manage_service_providers')
+def manage_service_providers():
+    """ Show all pending service providers for admin approval """
+    service_providers = ServiceProvider.query.filter_by(status='PENDING').all()
+    for service_provider in service_providers:
+        print(service_provider.documents)
+    return render_template('manage_sp.html', service_providers=service_providers)
+@app.route('/approve_service_provider/<sp_id>', methods=['POST'])
+def approve_service_provider(sp_id):
+    """ Approve a service provider and redirect them to their dashboard """
+    # Use filter_by instead of get() for composite primary keys
+    service_provider = ServiceProvider.query.filter_by(service_id=sp_id).first()
+    
+    if service_provider:
+        from models import ServiceProviderStatus
+        service_provider.status = ServiceProviderStatus.ACCEPTED
+        db.session.commit()
+        flash("Service Provider approved successfully!", "success")
+        return '', 200
+    return '', 400
+
+@app.route('/reject_service_provider/<sp_id>', methods=['POST'])
+def reject_service_provider(sp_id):
+    """ Reject a service provider and redirect them to the Get Started page """
+    # Use filter_by instead of get() for composite primary keys
+    service_provider = ServiceProvider.query.filter_by(service_id=sp_id).first()
+    
+    if service_provider:
+        from models import ServiceProviderStatus
+        service_provider.status = ServiceProviderStatus.REJECTED
+        db.session.commit()
+        flash("Service Provider rejected!", "danger")
+        return '', 200
+    return '', 400
+
+# @app.route('/customer_dashboard')
+# def customer_dashboard():
+#     return render_template('customer_dashboard.html')
+
+@app.route('/service_provider_dashboard')
+def service_provider_dashboard():
+    return render_template('service_provider_dashboard.html')
+
+# @app.route('/admin_dashboard')
+# def admin_dashboard():
+#     return render_template('admin_dashboard.html')
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    session.clear()
+    flash("Logged out successfully!")
+    return redirect(url_for('home'))
+
+
+@app.route('/manage_sp')
+def manage_sp():
+    service_providers = ServiceProvider.query.all()  # Fetch all service providers
+    print(service_providers)
+    # service_providers = ServiceProvider.query.filter_by(status='PENDING').all()
+    return render_template('manage_sp.html', service_providers=service_providers)
 
 
 @app.route('/competitions')
@@ -130,7 +393,7 @@ def competitions():
 
     # if current_user.is_admin:
     if is_admin():
-        return render_template('admin_dashboard.html', events=upcoming_events)
+        return render_template('admin_dashboard(team3).html', events=upcoming_events)
     
     # events = Event.query.all()
     # registered_events = Registration.query.filter_by(user_id=current_user.id).all()
@@ -149,7 +412,7 @@ def competitions():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template("discover[team2].html", events=Event.query.all())
+    return render_template("discover_team2.html", events=Event.query.all())
 
 
 @app.route('/add_event', methods=['GET', 'POST'])
@@ -231,7 +494,7 @@ def admin_dashboard():
     if not is_admin():
         return redirect(url_for('dashboard'))  # Restrict non-admin users
     events = Event.query.all()  #  Fetch all events
-    return render_template('admin_dashboard.html', events=events)
+    return render_template('admin_dashboard(team3).html', events=events)
 
 @app.route('/registrations')
 @login_required
@@ -566,13 +829,13 @@ def user_results():
     return render_template("user_results.html", past_results=formatted_results)
 
 
-
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    # flash('you have been logged out.','info')
-    return redirect(url_for('login'))
+# TEAM - 3
+# @app.route('/logout')
+# @login_required
+# def logout():
+#     logout_user()
+#     # flash('you have been logged out.','info')
+#     return redirect(url_for('login'))
 
 
 @app.route('/admin/event_statistics')
@@ -644,7 +907,28 @@ def event_statistics():
 
 
 
+#################################################  TEAM - 2 ROUTES GOES HERE ####################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+################################################     TEAM - 4 ROUTES GOES HERE  ###################################################################
+
+
+
+
 if __name__ == '__main__':
     with app.app_context():
-        start_scheduler(app)    
+        start_scheduler(app)
+        app.jinja_env.auto_reload = True
+        app.config['TEMPLATES_AUTO_RELOAD'] = True    
         app.run(debug=True)

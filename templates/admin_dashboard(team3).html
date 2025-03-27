@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <div class="filter-group">
+            <input type="text" id="nameFilter" placeholder="Search by event name" class="filter-input">
+            <input type="text" id="locationFilter" placeholder="Search by location" class="filter-input">
+            
+            <select id="dateFilter" class="filter-input">
+                <option value="">All Dates</option>
+                <option value="week">Next 7 days</option>
+                <option value="fortnight">Next 15 days</option>
+                <option value="month">Next 30 days</option>
+            </select>
+            
+            <div class="price-filter">
+                <span>Price Range: ₹<span id="priceValue">0 - 10000</span></span>
+                <div class="range-inputs">
+                    <input type="range" id="minPrice" min="0" max="10000" value="0" step="100" class="price-slider">
+                    <input type="range" id="maxPrice" min="0" max="10000" value="10000" step="100" class="price-slider">
+                </div>
+            </div>
+            
+            <button id="applyFilters" class="filter-btn">Apply Filters</button>
+            <button id="resetFilters" class="filter-btn reset">Reset</button>
+        </div>
+    </div>
+
+    {% if events %}
+        <div class="grid" id="competitionsGrid">
+            {% for event in events %}
+            <div class="card event-card" data-event-id={{ event.id }}
+                 data-title="{{ event.title }}"
+                 data-location="{{ event.location }}"
+                 data-date="{{ event.date }}"
+                 data-fee="{{ event.fee }}">
+                 <img src="{{ event.image_filename }}" class="card-img" alt="{{ event.title }}">
+
+                <div class="card-content">
+                    <h2 style="margin-bottom: 2px; color: #333;">{{ event.title }}</h2>
+                    <p style="display: flex; align-items: center; gap: 8px; font-size: 18px; color: #050908;">
+                        <i class="fa-regular fa-calendar"></i> {{ event.date }}
+                    </p>
+                    <p style="display: flex; align-items: center;margin-bottom: 10px; gap: 8px; font-size: 18px; color: #151111;">
+                        <i class="fa-solid fa-location-dot"></i> {{ event.location }}
+                    </p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                        <p class="price" style="font-size: 20px; font-weight: bold; color: #0a7737;">
+                            <span style="color: black;">Fees:</span> ₹{{ event.fee }}
+                        </p>
+                        <a href="{{ url_for('edit_event', event_id=event.id) }}" class="btn btn-warning">Edit</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal for this event -->
+            <div id="modal-{{ event.id }}" class="modal" onclick="closeModal('{{ event.id }}', event)">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <span class="close" onclick="closeModal('{{ event.id }}')">&times;</span>
+                    <img src="{{ event.image_filename }}" class="card-img" alt="{{ event.title }}">
+
+                    <h2>{{ event.title }}</h2>
+                    <div class="info-container">
+                        <i class="fa-regular fa-calendar"></i>
+                        <p><strong>Date:</strong> {{ event.date }}</p>
+                    </div>
+                    <div class="info-container">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <p><strong>Location:</strong> {{ event.location }}</p>
+                    </div>
+                    <p class="price"><strong>Entry Fee:</strong> ₹{{ event.fee }}</p>
+                    <p id="modalDesc">{{ event.description }}</p>
+                    <p><strong>Eligibility:</strong> {{ event.eligibility }}</p>
+                    <p><strong>Prizes:</strong> {{ event.prizes }}</p>
+                    <a href="{{ url_for('edit_event', event_id=event.id) }}" class="btn btn-warning">Edit</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const minPriceInput = document.getElementById('minPrice');
+                const maxPriceInput = document.getElementById('maxPrice');
+                const priceValue = document.getElementById('priceValue');
+                const applyFiltersBtn = document.getElementById('applyFilters');
+                const resetFiltersBtn = document.getElementById('resetFilters');
+                const nameFilter = document.getElementById('nameFilter');
+                const locationFilter = document.getElementById('locationFilter');
+                const dateFilter = document.getElementById('dateFilter');
+                const eventCards = document.querySelectorAll('.event-card');
+
+                // Update price range display
+                function updatePriceRange() {
+                    priceValue.textContent = `${minPriceInput.value} - ${maxPriceInput.value}`;
+                }
+
+                minPriceInput.addEventListener('input', updatePriceRange);
+                maxPriceInput.addEventListener('input', updatePriceRange);
+
+                // Apply filters
+                function applyFilters() {
+                    const name = nameFilter.value.toLowerCase();
+                    const location = locationFilter.value.toLowerCase();
+                    const date = dateFilter.value;
+                    const minPrice = parseInt(minPriceInput.value);
+                    const maxPrice = parseInt(maxPriceInput.value);
+
+                    eventCards.forEach(card => {
+                        // Safely get dataset values with fallbacks
+                        const title = (card.dataset.title || '').toLowerCase();
+                        const eventLocation = (card.dataset.location || '').toLowerCase();
+                        const eventDate = card.dataset.date ? new Date(card.dataset.date) : null;
+                        const fee = parseFloat(card.dataset.fee || 0);
+
+                        let showCard = true;
+
+                        // Name filter
+                        if (name && !title.includes(name)) {
+                            showCard = false;
+                        }
+
+                        // Location filter
+                        if (location && !eventLocation.includes(location)) {
+                            showCard = false;
+                        }
+
+                        // Date filter
+                        if (date && eventDate) {
+                            const today = new Date();
+                            const diffTime = eventDate - today;
+                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                            if (date === 'week' && diffDays > 7) showCard = false;
+                            if (date === 'fortnight' && diffDays > 15) showCard = false;
+                            if (date === 'month' && diffDays > 30) showCard = false;
+                        }
+
+                        // Price filter
+                        if (fee < minPrice || fee > maxPrice) {
+                            showCard = false;
+                        }
+
+                        card.style.display = showCard ? '' : 'none';
+                    });
+                }
+
+                // Reset filters
+                function resetFilters() {
+                    nameFilter.value = '';
+                    locationFilter.value = '';
+                    dateFilter.value = '';
+                    minPriceInput.value = 0;
+                    maxPriceInput.value = 10000;
+                    updatePriceRange();
+                    eventCards.forEach(card => card.style.display = '');
+                }
+
+                applyFiltersBtn.addEventListener('click', applyFilters);
+                resetFiltersBtn.addEventListener('click', resetFilters);
+            });
+        </script>
+    {% else %}
+        <p>No events available at the moment.</p>
+    {% endif %}
+{% endblock %}
