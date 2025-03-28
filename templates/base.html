@@ -105,7 +105,13 @@
 
             <li class="nav-item {% if request.endpoint == 'event_statistics' %}active{% endif %}">
                 <a href="{{ url_for('event_statistics') }}">
-                    <i class="fas fa-chart-bar"></i> View Stats
+                    <i class="fas fa-hands-clapping"></i> View Event Stats
+                </a>
+            </li>
+
+            <li class="nav-item {% if request.endpoint == 'analytics_dashboard' %}active{% endif %}">
+                <a href="{{ url_for('analytics') }}">
+                    <i class="fas fa-chart-bar"></i> Analytics & Insights
                 </a>
             </li>
 

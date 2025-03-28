@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pet Management Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 250px;
+            background: white;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .logo i {
+            color: #4CAF50;
+            font-size: 24px;
+        }
+        
+        .nav-menu {
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin: 15px 0;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .nav-item.active {
+            background: #e8f5e9;
+            color: #4CAF50;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            left: 250px;
+            top: 0;
+            width: calc(100% - 250px);
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 15px 30px;
+            z-index: 100;
+            box-shadow: 0 2px 2px rgba(0,0,0,0.1);
+        }
+
+        .navbar h2 {
+            flex: 1;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .notification {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: red;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 50%;
+            font-size: 12px;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-pic {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #4CAF50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .main-content {
+            margin-top: 60px;
+            margin-left: 250px;
+            padding: 20px;
+        }
+
+        .chart-container {
+
+    width:40%;
+    max-width:600px;
+    max-height: 300px;
+    background: white;
+    /* padding: 20px; */
+    border-radius: 12px;
+    box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
+    margin-left: 10px;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: row;
+    gap: 50px;
+}
+
+
+        .services-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-top: 20px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .services-table th, .services-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .services-table th {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .highlight-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            margin: 20px;
+            display: flex;
+            justify-content: space-between;
+            width: 90%;
+            margin: auto;
+            gap: 80px;
+            /* flex-wrap: wrap; */
+            justify-content:center;
+        }
+
+        .card {
+    background: white;
+    display: flex; 
+    justify-content: center;
+    align-items: center; 
+    border-radius: 12px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+    width: 10000px; /* Set to 100% to take full width of the parent */
+    max-width: 1000px; /* Set a max width for larger screens */
+    padding: 10px; /* Add padding for better spacing */
+    margin: 80px 80px; /* Center the card and add vertical spacing */
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Add transition for box-shadow */
+}
+
+.card:hover {
+    transform: translateY(-5px); /* Slightly lift the card on hover */
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2); /* Increase shadow on hover */
+}
+        .btn a {
+        text-decoration: none;
+    }
+
+    .btn {
+        position: absolute;
+        top: 10px; /* Adjust as needed */
+        right: 10px; /* Moves button to the right corner */
+    }
+
+    .green-button {
+        background-color: #4CAF50;
+        color: white;
+        margin-top: 55px;
+        padding: 10px 20px;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 5px;
+        text-align: center;
+    }
+
+    .green-button p {
+        margin: 0;
+    }
+
+    .green-button:hover {
+        background-color: darkgreen;
+    }
+    .login-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.login-btn:hover {
+    background-color: darkgreen;
+}
+
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-paw"></i>
+            <h2>PetHaven</h2>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item active"><i class="fas fa-home"></i> Dashboard</li>
+            <li class="nav-item"><i class="fas fa-trophy"></i> Competitions</li>
+            <li class="nav-item"><i class="fas fa-calendar-check"></i> My Registrations</li>
+            <li class="nav-item"><i class="fas fa-cog"></i> Settings</li>
+        </ul>
+    </div>
+    
+    <div class="navbar">
+        <h2>Pet Management Dashboard</h2>
+        <button class="login-btn">LogOut</button>
+    </div>
+
+    <div class="main-content">
+        <h3>📊 Revenue Breakdown</h3>
+
+        <table class="services-table">
+            <tr>
+                <th>Service</th>
+                <th>Revenue ($)</th>
+            </tr>
+            <tr><td>Vet Services</td><td>5000</td></tr>
+            <tr><td>Pet Sales</td><td>7000</td></tr>
+            <tr><td>Grooming</td><td>3000</td></tr>
+            <tr><td>Competitions</td><td>4000</td></tr>
+            <tr><td>Caretaking</td><td>2500</td></tr>
+        </table>
+        
+        <div class="chart-container">
+            <canvas id="revenueChart"></canvas>
+            <div class="card">
+                <h2>Total Revenue: <span class="highlight" id="totalRevenue" style="color: #4CAF50;">$0</span></h2>
+                <h3>Most Revenue-Generating Service: <span class="highlight" id="mostService" style="color: #4CAF50;">N/A</span></h3>
+                <h3>Least Revenue-Generating Service: <span class="highlight" id="leastService" style="color: red;">N/A</span></h3>
+            </div>
+        </div>
+
+        <div class="btn">
+            <button class="green-button" onclick="navigateToPage()">
+                <p>Monthly Trends</p>
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        new Chart(document.getElementById("revenueChart").getContext("2d"), {
+            type: "bar",
+            data: {
+                labels: ["Vet Services", "Pet Sales", "Grooming", "Competitions", "Caretaking"],
+                datasets: [{
+                    label: "Revenue ($)",
+                    data: [5000, 7000, 3000, 4000, 2500],
+                    backgroundColor: ["#3498db", "#e67e22", "#2ecc71", "#f1c40f", "#9b59b6"]
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        //nav for another page button:
+        function navigateToPage() {
+        window.location.href = "story2.html"; // Replace with your target page URL
+    }
+    </script>
+</body>
+</html>

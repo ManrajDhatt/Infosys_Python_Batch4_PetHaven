@@ -923,7 +923,19 @@ def event_statistics():
 
 ################################################     TEAM - 4 ROUTES GOES HERE  ###################################################################
 
+@app.route('/analytics_dashboard')
+@login_required
+def analytics():
+    return render_template('practice1.html')
 
+
+@app.route('/monthly-trends')
+def monthly_trends():
+    return render_template('practice2.html')
+
+
+
+###################################################################################################################################################
 
 
 if __name__ == '__main__':

@@ -1,0 +1,35 @@
+Date,Month,Year,Day,Status,Price,Duration,Customer Name,Services,Pet Name
+12,March,2024,Friday,N,92.74,5,Grace,Vaccination,Buddy
+27,February,2024,Tuesday,Y,127.57,1,Hannah,Walking Service,Bella
+3,February,2024,Saturday,Y,126.23,4,Emma,Vaccination,Max
+1,March,2024,Friday,Y,86.34,3,Frank,Walking Service,Luna
+25,April,2024,Sunday,Y,114.84,2,Charlie,Vaccination,Charlie
+4,February,2024,Sunday,Y,134.91,1,Frank,Pet Training,Lucy
+1,January,2024,Monday,Y,199.77,1,Charlie,Grooming,Leo
+20,December,2024,Saturday,N,114.83,3,Hannah,Vaccination,Milo
+20,January,2024,Saturday,N,88.07,2,Alice,Pet Training,Rosie
+31,March,2024,Wednesday,Y,197.32,3,Frank,Walking Service,Teddy
+14,February,2024,Wednesday,N,28.39,4,David,Pet Sitting,Toby
+5,January,2024,Friday,N,143.36,1,David,Pet Training,Daisy
+11,February,2024,Sunday,Y,100.9,1,Grace,Vaccination,Simba
+9,December,2024,Monday,Y,60.37,4,Frank,Vet Visit,Coco
+27,January,2024,Saturday,Y,160.92,5,Bob,Pet Sitting,Bailey
+24,February,2024,Saturday,N,160.23,2,Grace,Vet Visit,Finn
+27,April,2024,Tuesday,N,157.34,4,Grace,Pet Sitting,Shadow
+5,June,2024,Monday,Y,138.35,3,Hannah,Walking Service,Oreo
+31,August,2024,Wednesday,Y,63.17,3,Hannah,Walking Service,Hazel
+26,January,2024,Friday,Y,179.91,2,David,Walking Service,Scout
+12,July ,2024,Monday,Y,117.19,4,Hannah,Grooming,Hunter
+11,October,2024,Thursday,Y,104.28,5,Charlie,Pet Boarding,Diesel
+29,March,2024,Monday,Y,151.21,4,Hannah,Vaccination,Ace
+24,December,2024,Wednesday,N,178.29,4,Frank,Vet Visit,Rocky
+9,February,2024,Friday,Y,102.55,3,Frank,Vet Visit,Zeus
+12,January,2024,Friday,N,134.23,2,Emma,Pet Sitting,Thor
+30,August,2024,Tuesday,Y,151.84,3,Emma,Vaccination,Rex
+1,January,2024,Monday,N,155.27,5,Alice,Walking Service,Bruno
+3,June,2024,Saturday,Y,59.54,3,Grace,Vaccination,Jasper
+19,April,2024,Monday,N,30.91,5,Bob,Pet Training,Duke
+15,July ,2024,Thursday,N,23.98,3,Hannah,Vet Visit,Penny
+16,October,2024,Tuesday,Y,91.66,2,Frank,Pet Sitting,Mocha
+8,March,2024,Monday,Y,65.4,5,Hannah,Pet Training,Nova
+11,January,2024,Thursday,Y,157.62,1,Emma,Vaccination,Apollo
