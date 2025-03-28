@@ -4,13 +4,22 @@ from flask import Flask, abort, jsonify, render_template, redirect, session, url
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from sqlalchemy import func
-
-from models import Result, db, User, Event, Registration, ServiceProvider, insert_initial_data, insert_seed_data
-
+from sqlalchemy import func, text
+from models import (
+    Result, db, User, Event, Registration, ServiceProvider, 
+    insert_initial_data, insert_seed_data,
+    get_revenue_data, get_booking_data, 
+    fetch_recent_bookings, generate_revenue_graph, 
+    generate_booking_trend, get_stacked_revenue_data
+)
 from forms import RegistrationForm, LoginForm, EventForm, RegistrationEventForm, ResultForm
 from config import Config
 import os
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from collections import defaultdict
+from sqlalchemy.sql import func
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_mail import Message,Mail
@@ -932,6 +941,60 @@ def analytics():
 @app.route('/monthly-trends')
 def monthly_trends():
     return render_template('practice2.html')
+
+
+# API endpoint for revenue data
+@app.route('/data/revenue')
+def revenue_data():
+    data = get_revenue_data()
+    return jsonify(data)
+
+# API endpoint for booking trends data
+@app.route('/data/booking')
+def booking_data():
+    data = get_booking_data()[0]
+    print(data)
+    return jsonify(data)
+
+# API endpoint for recent bookings data
+@app.route('/data/recent_bookings')
+def recent_bookings():
+    data = fetch_recent_bookings()
+    return jsonify(data)
+
+# API endpoint to get revenue graph
+@app.route('/graph/revenue')
+def revenue_graph():
+    generate_revenue_graph()
+    return send_file('static/revenue_graph.png', mimetype='image/png')
+
+# API endpoint to get booking trend graph
+@app.route('/graph/booking')
+def booking_graph():
+    generate_booking_trend()
+    return send_file('static/booking_trend.png', mimetype='image/png')
+
+@app.route('/api/get_stacked_revenue_data')
+def stacked_revenue_api():
+    """API endpoint that returns stacked revenue data for the chart"""
+    try:
+        data = get_stacked_revenue_data()
+        if data and data.get('months') and data.get('revenue_per_service'):
+            return jsonify(data)
+        else:
+            return jsonify({
+                "error": "No data available",
+                "months": [],
+                "revenue_per_service": {}
+            })
+    except Exception as e:
+        app.logger.error(f"Error in stacked_revenue_api: {str(e)}")
+        return jsonify({
+            "error": str(e),
+            "months": [],
+            "revenue_per_service": {}
+        })
+
 
 
 

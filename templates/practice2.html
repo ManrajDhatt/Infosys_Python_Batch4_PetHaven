@@ -260,8 +260,20 @@
     async function generateStackedRevenueChart() {
         try {
             // Fetch revenue data from the backend
-            const response = await fetch('/api/get_stacked_revenue_data'); // Update with actual API route
+            const response = await fetch('/api/get_stacked_revenue_data');
+            console.log(response)
             const data = await response.json();
+
+            if (data.error) {
+                console.error("API returned error:", data.error);
+                return;
+            }
+
+            // Check if we have the required data
+            if (!data.months || !data.revenue_per_service) {
+                console.error("Missing required data properties");
+                return;
+            }
 
             // Extract months and revenue per service
             const months = data.months;
@@ -271,12 +283,41 @@
             const datasets = Object.keys(revenuePerService).map(service => ({
                 label: service,
                 data: revenuePerService[service],
-                backgroundColor: getRandomColor(), // Assign different colors
+                backgroundColor: getRandomColor(),
                 borderWidth: 1
             }));
 
-            // Get the canvas context
-            const ctx = document.getElementById('stackedRevenueChart').getContext('2d');
+            // Get the canvas context (fixed ID to match HTML)
+            const ctx = document.getElementById('StackedRevenueChart').getContext('2d');
+
+            if (data.error) {
+                console.error("API returned error:", data.error);
+                return;
+            }
+            
+             // Handle empty data gracefully
+            if (!data.months || data.months.length === 0) {
+                console.log("No revenue data available");
+                const ctx = document.getElementById('StackedRevenueChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['No Data'],
+                        datasets: [{
+                            label: 'No Revenue Data Available',
+                            data: [0],
+                            backgroundColor: '#cccccc'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: { display: true, text: 'No Revenue Data Available' }
+                        }
+                    }
+                });
+                return;
+            }
 
             // Create the stacked bar chart
             new Chart(ctx, {
@@ -311,8 +352,6 @@
     // Call the function to render the stacked chart
     generateStackedRevenueChart();
 
-
-
     async function exportReport() {
         try {
             const { jsPDF } = window.jspdf;
@@ -329,28 +368,32 @@
             const bookingData = await bookingResponse.json();
             const recentBookings = await recentBookingsResponse.json();
 
-            if (revenueData.error || bookingData.error || recentBookings.error) {
-                console.error("Error fetching data for export:", revenueData.error, bookingData.error, recentBookings.error);
-                return;
-            }
-
             // Add title
             doc.setFontSize(20);
             doc.text("Pet Management Dashboard Report", 20, 20);
 
             doc.setFontSize(12);
-            doc.text(`Total Bookings: ${Object.values(bookingData.monthly_bookings).reduce((a, b) => a + b, 0)}`, 20, 40);
+            // Fixed: Calculate total bookings properly from the array
+            const totalBookings = bookingData.reduce((sum, item) => sum + item.total_bookings, 0);
+            doc.text(`Total Bookings: ${totalBookings}`, 20, 40);
             doc.text(`Total Revenue: $${revenueData.total}`, 20, 50);
             doc.text(`Highest Revenue Service: ${revenueData.max_service}`, 20, 60);
             doc.text(`Lowest Revenue Service: ${revenueData.min_service}`, 20, 70);
-            doc.text(`Peak Booking Month: ${bookingData.peak_month}`, 20, 80);
-            doc.text(`Low Booking Month: ${bookingData.low_month}`, 20, 90);
+
+            // Get peak month from booking data
+            const peakMonth = bookingData.reduce((max, item) =>
+                item.total_bookings > (max?.total_bookings || 0) ? item : max, null);
+            const lowMonth = bookingData.reduce((min, item) =>
+                min === null || item.total_bookings < min.total_bookings ? item : min, null);
+
+            doc.text(`Peak Booking Month: ${peakMonth ? peakMonth.month_name : 'N/A'}`, 20, 80);
+            doc.text(`Low Booking Month: ${lowMonth ? lowMonth.month_name : 'N/A'}`, 20, 90);
 
             // Add Recent Bookings to PDF
             doc.text("Recent Bookings:", 20, 110);
             let yOffset = 120;
             recentBookings.forEach(booking => {
-                doc.text(`${booking["Pet Name"]} - ${booking["Service"]} - ${booking["Date"]}`, 20, yOffset);
+                doc.text(`${booking.user_name} - ${booking.service_name} - ${new Date(booking.booking_date).toLocaleDateString()}`, 20, yOffset);
                 yOffset += 10;
             });
 
