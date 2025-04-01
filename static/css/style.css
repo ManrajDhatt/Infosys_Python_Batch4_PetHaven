@@ -158,14 +158,16 @@ body {
     gap: 10px;
     min-width: 250px;
 }
-
 .price-slider {
     width: 100%;
-    height: 6px;
-    -webkit-appearance: none;
+    height: 5px;
+    appearance: none; /* Standard property */
+    -webkit-appearance: none; /* Chrome, Safari */
+    -moz-appearance: none; /* Firefox */
     background: #ddd;
-    border-radius: 3px;
+    border-radius: 5px;
     outline: none;
+    cursor: pointer;
 }
 
 .price-slider::-webkit-slider-thumb {
@@ -783,14 +785,16 @@ nav a:hover {
     display: flex;
     gap: 10px;
 }
-
 .price-slider {
     width: 100%;
     height: 5px;
-    -webkit-appearance: none;
+    appearance: none; /* Standard property */
+    -webkit-appearance: none; /* Chrome, Safari */
+    -moz-appearance: none; /* Firefox */
     background: #ddd;
     border-radius: 5px;
     outline: none;
+    cursor: pointer;
 }
 
 .price-slider::-webkit-slider-thumb {
