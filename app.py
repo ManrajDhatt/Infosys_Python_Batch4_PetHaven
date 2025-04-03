@@ -23,7 +23,7 @@ from sqlalchemy.sql import func
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_mail import Message,Mail
-from send_email import send_confirmation_email, send_update_email
+from send_email import send_confirmation_email, send_update_email, send_email, send_password_reset_email
 from dotenv import load_dotenv
 import cloudinary.uploader
 from flask_migrate import Migrate
@@ -106,7 +106,7 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
-        # send_email("Welcome to PetHaven", email, f"Hello {user_name}, your registration was successful!")
+        send_email("Welcome to PetHaven", email, f"Hello {user_name}, your registration was successful!")
 
         if user_type == 'Service Provider':
             uploaded_file = request.files.get('document_folder') 
@@ -213,6 +213,9 @@ def reg():
 
 @app.route('/login', methods=['GET','POST'])
 def login():
+
+    session.pop('_flashes', None)
+
     email = request.form.get('email')
     password = request.form.get('password')
 
@@ -253,6 +256,9 @@ def login():
 
 @app.route('/admin_login', methods=['GET','POST'])
 def admin_login():
+    if '_flashes' in session:
+        del session['_flashes']
+    
     print("Login attempt received")
     print("Form data:", request.form)
     
