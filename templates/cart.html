@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+{% block title %} Pet Haven - Cart {% endblock %}
+{% block style %}
+   
+    <link rel="stylesheet" href="static/css/styles.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* Confirmation Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            width: 400px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            position: relative;
+        }
+        
+        .modal-content h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .modal-content p {
+            margin-bottom: 20px;
+            color: #555;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .modal-buttons button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        
+        .cancel-btn {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+        
+        .cancel-btn:hover {
+            background-color: #d0d0d0;
+        }
+        
+        .confirm-btn {
+            background-color: #ff4444;
+            color: white;
+        }
+        
+        .confirm-btn:hover {
+            background-color: #cc0000;
+        }
+        
+        .close-modal {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 20px;
+            cursor: pointer;
+            color: #aaa;
+        }
+        
+        .close-modal:hover {
+            color: #333;
+        }
+        
+        /* Empty cart message */
+        .empty-cart {
+            text-align: center;
+            padding: 40px 0;
+        }
+        
+        .empty-cart p {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .empty-cart a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        
+        .empty-cart a:hover {
+            background-color: #45a049;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <!-- Main Content -->
+    <!-- Navbar -->
+    <div class="navbar" id="navbar">
+        <h2>Cart</h2>
+        <div class="nav-right">
+            <div class="notification">
+                <i class="fas fa-bell fa-2x"></i>
+                <span class="badge">2</span>
+            </div>
+            <div class="profile-dropdown">
+                <div class="profile" onclick="toggleDropdown()">
+                    <div class="profile-pic">{{ current_user.user_name[0] }}</div>
+                </div>
+
+                <div class="dropdown-menu" id="profileDropdown">
+                    <p class="dropdown-username">{{ current_user.user_name }}</p>
+                    <div class="settings">
+                        <p>
+                            <a href="{{url_for('settings')}}">
+                                <i class="fas fa-cog"></i>
+                                Settings
+                            </a>
+                        </p>
+                    </div>
+                    <a href="{{ url_for('logout') }}">
+                        <i class="fas fa-lock"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <div class="cart-container">
+            <h2>Your Cart (<span id="cart-count">{{ cart|length }}</span>)</h2>
+            
+            {% if cart %}
+                <div class="cart-items">
+                    {% for item in cart %}
+                        <div class="cart-item" data-id="{{ item.id }}" data-type="{{ item.type }}">
+                            <img src="{{ item.image }}" alt="{{ item.name if item.type == 'dog' else item.service_name }}">
+                            <div class="item-details">
+                                {% if item.type == "dog" %}
+                                    <h3>{{ item.name }}</h3>
+                                    <p>Breed: {{ item.breed }}</p>
+                                    <p>Age: {{ item.age }}</p>
+                                    <p>Price: Rs.{{ item.price }}</p>
+                                {% else %}
+                                    <h3>Service: {{ item.service_name }}</h3>
+                                    <p>Provider: {{ item.provider_id }}</p>
+                                    <p>Date: {{ item.date }}</p>
+                                    <p>Duration: {{ item.duration }}</p>
+                                    <p class="item-price">Rs.{{ item.total_cost }}</p>
+                                {% endif %}
+                            </div>
+                            <button class="remove-from-cart" data-id="{{ item.id }}" data-type="{{ item.type }}">Remove</button>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="cart-summary">
+                    <h3>Total: Rs. <span id="total-price">{{ total_price }}</span></h3>
+                    <a id="checkout" href="/order">Proceed to Checkout</a>
+                </div>
+            {% else %}
+                <div class="empty-cart">
+                    <p>Your cart is empty.</p>
+                    <a href="{{ url_for('dashboard') }}">Browse Dogs</a>
+                </div>
+            {% endif %}
+        </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h3>Remove from Cart</h3>
+            <p>Are you sure you want to remove this item from your cart?</p>
+            <div class="modal-buttons">
+                <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+                <button id="confirm-remove" class="confirm-btn">Remove</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Global variables to store item to be removed
+        let itemToRemoveId;
+        let itemToRemoveType;
+        
+        // Open confirmation modal when Remove button is clicked
+        $(document).ready(function() {
+            $(".remove-from-cart").click(function() {
+                // Store the item data
+                itemToRemoveId = $(this).data("id");
+                itemToRemoveType = $(this).data("type");
+                
+                // Show the modal
+                $("#confirmation-modal").css("display", "block");
+            });
+            
+            // Handle confirmation
+            $("#confirm-remove").click(function() {
+                removeItemFromCart(itemToRemoveId, itemToRemoveType);
+            });
+        });
+        
+        // Close the modal
+        function closeModal() {
+            $("#confirmation-modal").css("display", "none");
+        }
+        
+        // Remove item from cart
+        function removeItemFromCart(itemId, itemType) {
+            let requestData = {};
+            if (itemType === "dog") {
+                requestData.dog_id = itemId;
+            } else if (itemType === "booking") {
+                requestData.booking_id = itemId;
+            }
+
+            $.ajax({
+                url: "/cart/remove",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(requestData),
+                success: function(response) {
+                    console.log("Server response:", response);
+                    
+                    // Close the modal first
+                    closeModal();
+                    
+                    // Show brief message
+                    const itemTypeCapitalized = itemType.charAt(0).toUpperCase() + itemType.slice(1);
+                    
+                    // Add visual feedback before reload
+                    const itemElement = $(`.cart-item[data-id='${itemId}'][data-type='${itemType}']`);
+                    itemElement.fadeOut(300, function() {
+                        // Check if this was the last item
+                        if ($(".cart-item").length <= 1) {
+                            // If cart is now empty, redirect to home page after a delay
+                            setTimeout(() => {
+                                window.location.href = '{{ url_for("dashboard") }}';
+                            }, 500);
+                        } else {
+                            // Otherwise just reload the cart page
+                            window.location.reload();
+                        }
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error removing from cart:", error);
+                    closeModal();
+                    alert("Failed to remove " + itemType + " from cart. Try again!");
+                }
+            });
+        }
+        
+        // Close modal if clicked outside
+        $(window).click(function(event) {
+            if ($(event.target).is("#confirmation-modal")) {
+                closeModal();
+            }
+        });
+    </script>
+    <script src="static/js/script.js"></script>
+{% endblock %}

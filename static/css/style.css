@@ -580,7 +580,7 @@ nav a:hover {
 .main-content {
     margin-left: 250px;
     padding: 40px;
-    z-index: 10000;
+    z-index: 0;
     min-width: 500px;
     width: calc(100% - 250px);
    

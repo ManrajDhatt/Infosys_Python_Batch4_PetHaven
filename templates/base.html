@@ -75,6 +75,9 @@
             <li class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
                 <a href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a>
             </li>
+            <li class="nav-item {% if request.endpoint == 'services' %}active{% endif %}">
+                <a href="{{ url_for('services') }}"><i class="fa-solid fa-spa"></i>Services</a>
+            </li>
             <li class="nav-item {% if request.endpoint == 'competitions' %}active{% endif %}">
                 <a href="{{ url_for('competitions') }}"><i class="fas fa-trophy"></i> Competitions</a>
             </li>
@@ -94,6 +97,10 @@
 
             <li class="nav-item {% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
                 <a href="{{ url_for('admin_dashboard') }}"><i class="fas fa-home"></i> Dashboard / All Events</a>
+            </li>
+
+            <li class="nav-item {% if request.endpoint == 'manage_sp' %}active{% endif %}">
+                <a href="{{ url_for('admin_dashboard_team2') }}"><i class="fa-solid fa-dog"></i> Manage Dogs</a>
             </li>
 
             <li class="nav-item {% if request.endpoint == 'manage_sp' %}active{% endif %}">

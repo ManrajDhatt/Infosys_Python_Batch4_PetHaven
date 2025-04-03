@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %} Admin | Manage Dogs {% endblock %}
+{% block style %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+{% endblock %}
+{% block content %}
+    <!-- Main Content -->
+        <div class="container">
+            <h1>Manage Dog Gallery</h1>
+        
+            <button onclick="showAddDogForm()">+ Add New Dog</button>
+
+            <div id="add-dog-form" class="hidden">
+                <h3>Add a Dog</h3>
+                <form id="dog-form" enctype="multipart/form-data">
+                    <input type="text" id="dog-name" placeholder="Dog Name" required>
+                    <input type="text" id="dog-breed" placeholder="Breed" required>
+                    <input type="text" id="dog-age" placeholder="Age" required>
+                    <input type="number" id="dog-price" placeholder="Price (INR)" required>
+                    <textarea id="dog-description" placeholder="Short Description"></textarea>
+                    <input type="file" id="dog-image" placeholder="Upload Image" required>
+                    <button type="submit">Add Dog</button>
+                </form>
+            </div>
+
+            <section class="dog-listing">
+                <h2>Dog Listings</h2>
+                <div id="dog-list"></div>
+            </section>
+        </div>
+
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

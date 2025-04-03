@@ -1,5 +1,243 @@
 {% extends 'base.html' %}
-
+{%block style %}
+    <link rel="stylesheet" href="static/css/dog.css" />
+    <style>
+        /* Success Notification Styles */
+        .notification-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 0;
+            width: 320px;
+            overflow: hidden;
+            transform: translateX(400px);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .notification-popup.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        
+        .notification-header {
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .notification-body {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .notification-icon {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+            border-radius: 50%;
+            background-color: rgba(76, 175, 80, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .notification-icon i {
+            color: #4CAF50;
+            font-size: 24px;
+        }
+        
+        .notification-content {
+            flex: 1;
+        }
+        
+        .notification-title {
+            font-weight: bold;
+            margin: 0 0 5px 0;
+        }
+        
+        .notification-message {
+            margin: 0;
+            color: #666;
+        }
+        
+        .notification-actions {
+            margin-top: 10px;
+        }
+        
+        .notification-btn {
+            padding: 6px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+        }
+        
+        .notification-btn:hover {
+            background-color: #3e8e41;
+        }
+    </style>
+{% endblock %}
+{% block title %}
+Pet Haven - Dog Listings
+{% endblock %}
 {% block content %}
-<h1>Dog Marketplace -> |||| Team 2 ||||</h1>
+<div class="container">
+     <!-- Search Filter and Listing Section -->
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search for dogs, breeds, etc...">
+        <button onclick="applyFilters()"><i class="fas fa-search"></i></button>
+    
+        <nav>
+        <a class="cart-style" href="/cart">
+            <i class="fas fa-shopping-cart"></i> Cart(<span id="cart-count">0</span>)
+        </a>
+        </nav>
+    </div>
+
+    <div class="filter-list-container">
+        <aside class="filter-section">
+        <h2>Filters</h2>
+        <div class="filters">
+            <div class="filter-group">
+            <label for="breedFilter">Breed</label>
+            <select id="breedFilter">
+                <option value="">All Breeds</option>
+                <option value="Labrador">Labrador</option>
+                <option value="Bulldog">Bulldog</option>
+                <option value="Poodle">Poodle</option>
+                <option value="Beagle">Beagle</option>
+                <option value="German Shepherd">German Shepherd</option>
+                <option value="Golden Retriever">Golden Retriever</option>
+                <option value="Shih Tzu">Shih Tzu</option>
+                <option value="Dachshund">Dachshund</option>
+                <option value="Rottweiler">Rottweiler</option>
+                <option value="Pomeranian">Pomeranian</option>
+                <option value="Husky">Husky</option>
+                <option value="Dalmatian">Dalmatian</option>
+                <option value="Border Collie">Border Collie</option>
+                <option value="Corgi">Corgi</option>
+                <option value="Samoyed">Samoyed</option>
+                <option value="Maltese">Maltese</option>
+                <option value="Doberman">Doberman</option>
+                <option value="Saint Bernard">Saint Bernard</option>
+                <option value="Chihuahua">Chihuahua</option>
+                <option value="Akita">Akita</option>
+                <option value="Great Dane">Great Dane</option>
+                <option value="Shiba Inu">Shiba Inu</option>
+                <option value="Alaskan Malamute">Alaskan Malamute</option>
+                <option value="Papillon">Papillon</option>
+                <option value="Basset Hound">Basset Hound</option>
+                <option value="Cane Corso">Cane Corso</option>
+                <option value="Irish Setter">Irish Setter</option>
+                <option value="Weimaraner">Weimaraner</option>
+                <option value="Newfoundland">Newfoundland</option>
+                <option value="Belgian Malinois">Belgian Malinois</option>
+            </select>
+            </div>
+
+            <div class="filter-group">
+            <label for="ageFilter">Age</label>
+            <select id="ageFilter">
+                <option value="">All Ages</option>
+                <option value="Puppy">Puppy</option>
+                <option value="Young">Young</option>
+                <option value="Adult">Adult</option>
+                <option value="Mature">Mature</option>
+                <option value="Senior">Senior</option>
+            </select>
+            </div>
+
+            <div class="filter-group price-filter-container">
+            <label for="minPrice">Price</label>
+            <div>
+                <input type="number" id="minPrice" placeholder="Min" min="0" />
+                <span>-</span>
+                <input type="number" id="maxPrice" placeholder="Max" />
+            </div>
+            <span id="minPriceValue">Min: Rs.0</span>
+            <span id="maxPriceValue">Max: Rs.0</span>
+            </div>
+        </div>
+        </aside>        
+
+        <section class="dog-listing">
+        <div id="dogGrid" class="dog-grid">
+            <!-- Dog cards will be added here by JavaScript -->
+        </div>
+        <!-- Pagination will be added here dynamically by JavaScript -->
+        </section>
+        </div>
+    </div>
+    <!-- Main Content -->
+    <!-- Modal Structure -->
+    <div id="dogDetailsModal" class="modal">
+        <div class="modal-content">
+        <span id="closeModal" class="close">&times;</span>
+        <div id="dogDetails" class="dog-info"></div> <!-- Dog details will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Success Notification for Add to Cart -->
+    <div id="addToCartNotification" class="notification-popup">
+        <div class="notification-header">
+        <h3>Added to Cart</h3>
+        <button class="notification-close" onclick="closeNotification('addToCartNotification')">&times;</button>
+        </div>
+        <div class="notification-body">
+        <div class="notification-icon">
+            <i class="fas fa-check"></i>
+        </div>
+        <div class="notification-content">
+            <h4 class="notification-title">Dog added to your cart!</h4>
+            <p class="notification-message">You can checkout anytime from your cart.</p>
+            <div class="notification-actions">
+            <a href="/cart" class="notification-btn">View Cart</a>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Success Notification for Order Placed -->
+    <div id="orderSuccessNotification" class="notification-popup">
+        <div class="notification-header">
+        <h3>Order Placed</h3>
+        <button class="notification-close" onclick="closeNotification('orderSuccessNotification')">&times;</button>
+        </div>
+        <div class="notification-body">
+        <div class="notification-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="notification-content">
+            <h4 class="notification-title">Order placed successfully!</h4>
+            <p class="notification-message">Thank you for your purchase. We'll process it right away.</p>
+            <div class="notification-actions">
+            <a href="/order-confirm" class="notification-btn">View Order</a>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <script src="../static/js/script.js"></script>
 {% endblock %}
