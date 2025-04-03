@@ -1,129 +1,598 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pet-Haven</title>
-    <link href="{{url_for('static', filename='css/landingpage_styles.css')}}" rel="stylesheet">
+    <title>Pet Haven - Animated Landing Page</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(45deg, #51f442, #df8e43, #66909c);
+            background-size: 200% 200%;
+            animation: bgMove 6s infinite alternate ease-in-out;
+            overflow-x: hidden;
+            text-align: center;
+            color: white;
+        }
+
+        @keyframes bgMove {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        /* Navigation Bar */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: #27ae60;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            position: relative;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: color 0.3s, transform 0.3s;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #27ae60;
+            transform: translateY(-2px);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: #27ae60;
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Contact Popup */
+        .contact-popup {
+            display: none;
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            width: 250px;
+            text-align: left;
+            z-index: 1000;
+            right: 0;
+            top: 100%;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .contact-popup p {
+            margin: 8px 0;
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        .contact-popup strong {
+            color: #27ae60;
+        }
+
+        .contact-container {
+            position: relative;
+        }
+
+        .contact-container:hover .contact-popup {
+            display: block;
+        }
+
+        .landing {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding-top: 80px;
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .content h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            opacity: 0;
+            transform: translateY(-30px);
+            animation: fadeIn 1.5s ease-in-out forwards;
+        }
+
+        .content h1 span {
+            color: #27ae60;
+        }
+
+        .content p {
+            font-size: 1.5rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 2s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .cta-container {
+            position: relative;
+            margin-top: 20px;
+        }
+
+        .cta {
+            background: #27ae60;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        /* Image above button */
+        .button-image {
+            position: absolute;
+            width: 80px;
+            bottom: 35px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+            animation: float 5s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(-50%, 0); }
+            50% { transform: translate(-50%, -10px); }
+        }
+
+        /* Dog & Cat Animation */
+        .pets img {
+            position: absolute;
+            width: 150px;
+        }
+
+        .dog {
+            bottom: 5%;
+            left: 20%;
+            animation: dogBounce 3s infinite ease-in-out;
+        }
+
+        .cat {
+            bottom: 5%;
+            right: 20%;
+            animation: catJump 4s infinite ease-in-out;
+        }
+
+        @keyframes dogBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes catJump {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-30px); }
+        }
+
+        /* Floating Paw Prints */
+        .paw-prints {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .paw {
+            width: 40px;
+            opacity: 0.3;
+            position: absolute;
+            animation: floatPaw 5s infinite alternate ease-in-out;
+        }
+
+        @keyframes floatPaw {
+            0% { transform: translateY(0) scale(1); opacity: 0.3; }
+            100% { transform: translateY(-20px) scale(1.2); opacity: 0.7; }
+        }
+
+        /* Footer */
+        footer {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 30px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .footer-logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .footer-logo span {
+            color: #27ae60;
+        }
+
+        .footer-columns {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        .footer-column {
+            flex: 1;
+            padding: 0 30px;
+        }
+
+        .footer-column h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #27ae60;
+        }
+
+        .footer-column p {
+            margin: 8px 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #27ae60;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-icons a {
+            color: white;
+            font-size: 1.5rem;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        .social-icons a:hover {
+            color: #27ae60;
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 20px;
+        }
+
+        .copyright-inc {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 20px;
+            text-align: left;
+        }
+
+        .faq-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: white;
+            text-align: center;
+        }
+
+        .faq-item {
+            margin-bottom: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .faq-question {
+            font-weight: bold;
+            color: #27ae60;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-answer {
+            margin-top: 10px;
+            display: none;
+            color: #e0e0e0;
+        }
+
+        .faq-answer.show {
+            display: block;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .content h1 {
+                font-size: 2.5rem;
+            }
+            
+            .content p {
+                font-size: 1.2rem;
+            }
+            
+            .nav-links {
+                gap: 15px;
+            }
+            
+            .pets img {
+                width: 100px;
+            }
+
+            .contact-popup {
+                width: 200px;
+                right: auto;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .footer-columns {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .footer-column {
+                padding: 0;
+            }
+        }
+    </style>
 </head>
-
 <body>
+
+    <!-- Navigation Bar -->
     <nav>
-        <div class="nav-content">
-            <div class="site-logo">
-                <a>
-                    <img class="logo" src="/static/images/petIconLogo.png" alt="site-logo" />
-                    <span class="logo-text">Pet-Haven</span>
-                </a>
+        <div class="nav-container">
+            <a href="#" class="logo">Pet <span>Haven</span></a>
+            <div class="nav-links">
+                <a href="#about">About</a>
+                <a href="{{ url_for('login') }}">Services</a>
+                <div class="contact-container">
+                    <a href="#contact">Contact</a>
+                    <div class="contact-popup">
+                        <p><strong>Email:</strong> pethavenservice@gmail.com</p>
+                        <p><strong>Phone:</strong> 9999999999</p>
+                        <p><strong>Timings:</strong><br>Mon - Fri (Weekdays)<br>10 am - 7 pm</p>
+                    </div>
+                </div>
             </div>
-            <div class="nav-link">
-                <ul>
-
-                    <li><a href="{{url_for('reg')}}">Get Started</a></li>
-                    <li><a href="#faqs">About Us</a></li>
-                    <li><a href="#contact-us">Contact Us</a></li>
-                </ul>
-            </div>
-
-        </div>
-
         </div>
     </nav>
-    <main>
-        <div class="main-layout">
-            <div class="hero-heading">
-                <h1> Your <span class="blob-1">One-stop</span> solution to all things <span
-                        class="rotate-star">✨</span>&nbsp; <span class="hero-word">Pet</span>
-                    <img class="hero-img" src="/static/images/herodog.png" alt="a dog emoji" />
-                </h1>
+
+    <section class="landing">
+        <div class="content">
+            <h1>Welcome to <span>Pet Haven</span></h1>
+            <p>Your best friend deserves the best care!</p>
+            <div class="cta-container">
+                <br>
+                <img src="https://i.postimg.cc/nzw5gH0L/img6.png" alt="Decorative paw" class="button-image">
+                <br>
+                <br>
+                <a  class="cta" href="{{url_for('reg')}}">Explore Services</a>
+
             </div>
-
-            <section class="cta-section">
-
-                <a class="cta-button" href="{{url_for('reg')}}">Get Started</a>
-            </section>
-
-
-
-
-            <section class="faqs">
-                <h2><a href="#faqs">FAQs</a></h2>
-                <details>
-                    <summary>What is Pet Haven ?</summary>
-                    <div>
-                        <p>Your most trusted ....................
-                            inding reliable pet care services, from dog purchases to grooming and competitions, can be a
-                            challenge without the right platform. Pet owners deserve access to skilled, verified
-                            professionals
-                        </p>
-                    </div>
-                </details>
-                <details>
-                    <summary>What service we Provide ?</summary>
-                    <div>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Numquam saepe modi aliquam vel alias
-                            ipsam, necessitatibus ad doloremque odit id expedita consequuntur, quasi dolore provident
-                            maiores sunt cupiditate. Modi, et!</p>
-                    </div>
-                </details>
-                <details>
-                    <summary>How to register if you are a service provider ?</summary>
-                    <div>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Numquam saepe modi aliquam vel alias
-                            ipsam, necessitatibus ad doloremque odit id expedita consequuntur, quasi dolore provident
-                            maiores sunt cupiditate. Modi, et!</p>
-                    </div>
-                </details>
-                <details>
-                    <summary>Data Policy</summary>
-                    <div>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Numquam saepe modi aliquam vel alias
-                            ipsam, necessitatibus ad doloremque odit id expedita consequuntur, quasi dolore provident
-                            maiores sunt cupiditate. Modi, et!</p>
-                    </div>
-                </details>
-            </section>
-
-
-            <section class="contact-us">
-
-                <h2><a href="#contact-us">Where to reach us</a></h2>
-                <p>You can reach us at </p>
-                <ul>
-                    <li>✉️ pethavenservice@gmail.com</li>
-                    <li>📞 9999999999</li>
-                </ul>
-                <p><strong>Note -</strong> Timings: Mon - Fri (Weekdays) 10 am - 7 pm</p>
-            </section>
         </div>
-    </main>
+
+        <div class="pets">
+            <img src="https://i.postimg.cc/PqDPPxvg/img1.png" alt="Dog" class="dog">
+            <img src="https://i.postimg.cc/G2pVXBPN/img2.png" alt="Cat" class="cat">
+            
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section" id="faq">
+        <h3>FAQs</h3>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleAnswer(this)">
+                What is Pet Haven?
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="faq-answer">
+                Pet Haven is a premier pet care service provider dedicated to offering the best care for your furry friends. We provide a range of services including grooming, boarding, walking, and veterinary care.
+            </div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleAnswer(this)">
+                What services do we provide?
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="faq-answer">
+                We offer a comprehensive range of pet care services including grooming, boarding, pet sitting, dog walking, training, and veterinary services. We also provide specialized care for pets with special needs.
+            </div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleAnswer(this)">
+                How to register if you are a service provider?
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                If you're interested in joining our team of service providers, please visit our careers page or contact us directly. We require relevant experience, certifications (where applicable), and a passion for animal care.
+            </div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleAnswer(this)">
+                Data Policy
+                <span class="faq-toggle">+</span>
+            </div>
+            <div class="faq-answer">
+                We take your privacy seriously. All personal and pet information is stored securely and used only for providing our services. We never share your data with third parties without your consent. For full details, please see our Privacy Policy.
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
     <footer>
-        <p>&copy; Pet Haven Inc. <span>🐾</span></p>
-
-        <div class="blob-footer">
-            <div class="blob-footer-1"></div>
-            <div class="blob-footer-2"></div>
-            <div class="blob-footer-3"></div>
+        <div class="footer-content">
+            <div class="footer-logo">Pet <span>Haven</span></div>
+            
+            <div class="footer-columns">
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <p><strong>Email:</strong> pethavenservice@gmail.com</p>
+                    <p><strong>Phone:</strong> 9999999999</p>
+                    <p><strong>Timings:</strong> Mon - Fri (Weekdays) 10 am - 7 pm</p>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <div class="footer-links">
+                        <a href="#privacy">Privacy Policy</a>
+                        <a href="#faq">FAQs</a>
+                        <a href="#about">About Us</a>
+                        <a href="{{ url_for('login') }}">Our Services</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- <div class="social-icons">
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+            </div> -->
+            
+            <div class="copyright">
+                &copy; 2025 Pet Haven. All rights reserved.
+            </div>
+            <div class="copyright-inc">
+                &copy; Pet Haven Inc.
+            </div>
         </div>
-
-        <img class="footer-img-1" src="/static/images/footer-dog-1.png" alt="dog-image" />
-
-
-
-
-        <img class="footer-img-3"
-            src="https://imgproxy.attic.sh/VAS-jK4ir_4NGlDAmxQc_6BKn_bqY_f8oB-8wZ7_Ut4/rs:fit:128:128:1:1/t:1:FF00FF:false:false/pngo:false:true:256/aHR0cHM6Ly9hdHRp/Yy5zaC9ydW5wb2Qv/MmMyZjYwODAtMTYz/YS00ZjZmLWE5M2Qt/NGRhMWQwNDQwZjYz/LnBuZw.png"
-            alt="Dog agility emoji" width="128" height="128" />
-
-        <img class="footer-img-2"
-            src="https://imgproxy.attic.sh/IHDCJIzugiXzZcgUhx7sXdyNsbm8ILoS9VsCgL0EK54/rs:fit:128:128:1:1/t:1:FF00FF:false:false/pngo:false:true:256/aHR0cHM6Ly9hdHRp/Yy5zaC8wNXpmbmxq/MDVta3oydjEwd3Jn/cWpyeDN5cXc2.png"
-            alt="Human with dog emoji" width="128" height="128" />
-
-
-
-
     </footer>
-</body>
 
+    <!-- Font Awesome for icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    
+    <script>
+        
+    function redirectToLogin() {
+        window.location.href = "{{ url_for('login') }}";
+    }
+        
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // FAQ toggle functionality
+        function toggleAnswer(question) {
+            const answer = question.nextElementSibling;
+            const icon = question.querySelector('.toggle-icon, .faq-toggle');
+            
+            if (answer.classList.contains('show')) {
+                answer.classList.remove('show');
+                icon.textContent = '+';
+            } else {
+                answer.classList.add('show');
+                icon.textContent = '-';
+            }
+        }
+    </script>
+    
+</body>
 </html>
