@@ -186,11 +186,11 @@
     <!-- Confirmation Modal -->
     <div id="confirmation-modal" class="modal">
         <div class="modal-content">
-            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <span class="close-modal" onclick="closeCartModal()">&times;</span>
             <h3>Remove from Cart</h3>
             <p>Are you sure you want to remove this item from your cart?</p>
             <div class="modal-buttons">
-                <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+                <button class="cancel-btn" onclick="closeCartModal()">Cancel</button>
                 <button id="confirm-remove" class="confirm-btn">Remove</button>
             </div>
         </div>
@@ -220,8 +220,13 @@
         });
         
         // Close the modal
-        function closeModal() {
+        function closeCartModal() {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
             $("#confirmation-modal").css("display", "none");
+            return false; // Ensure no implicit returns
         }
         
         // Remove item from cart
@@ -273,7 +278,7 @@
         // Close modal if clicked outside
         $(window).click(function(event) {
             if ($(event.target).is("#confirmation-modal")) {
-                closeModal();
+                closeCartModal(event);
             }
         });
     </script>
