@@ -1,0 +1,155 @@
+
+/* Global Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 250px;
+    background: #222;
+    color: white;
+    padding: 20px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.sidebar .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 20px;
+    padding: 15px;
+}
+
+.sidebar .logo i {
+    font-size: 30px;
+    color: white;
+}
+
+.sidebar .nav-menu {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.sidebar .nav-item {
+    padding: 12px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.sidebar .nav-item:hover,
+.sidebar .nav-item.active {
+    background: #4CAF50;
+    color: white;
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #28a745;
+    color: white;
+    padding: 15px 20px;
+    position: fixed;
+    width: calc(100% - 250px);
+    left: 250px;
+    top: 0;
+    transition: width 0.3s;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.notification {
+    position: relative;
+}
+
+.badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: red;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 50%;
+    font-size: 12px;
+}
+
+/* Profile */
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-pic {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #fff;
+    color: #28a745;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+/* Burger Icon */
+.burger {
+    display: none;
+    position: fixed;
+    left: 20px;
+    top: 20px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+
+    .navbar {
+        left: 0;
+        width: 100%;
+    }
+
+    .burger {
+        display: block;
+    }
+}
+.sidebar {
+    background: linear-gradient(135deg, #4CAF50, #2E7D32); /* Updated background for better UI */
+    color: white;
+}
+
+.sidebar .nav-item {
+    color: white;
+}
+
+.sidebar .nav-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.logo i {
+    color: white;
+    font-size: 30px;
+}

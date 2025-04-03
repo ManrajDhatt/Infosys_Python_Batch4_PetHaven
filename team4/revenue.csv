@@ -1,0 +1,31 @@
+service,price_per_service,total_bookings,revenue
+Dog Grooming,50,120,6000
+Cat Grooming,40,90,3600
+Pet Sitting,30,150,4500
+Dog Walking,20,200,4000
+Vet Checkup,70,80,5600
+Nail Trimming,15,130,1950
+Pet Training,100,50,5000
+Pet Boarding,80,60,4800
+Bath & Blow Dry,45,110,4950
+Exotic Pet Care,120,30,3600
+Flea & Tick Treatment,35,85,2975
+Emergency Vet Visit,150,40,6000
+Puppy Socialization,60,70,4200
+Dog Teeth Cleaning,55,95,5225
+Cat Teeth Cleaning,50,75,3750
+Dog Massage,40,65,2600
+Pet Taxi Service,25,120,3000
+Doggie Daycare,35,100,3500
+Pet Waste Removal,20,150,3000
+Senior Pet Care,90,45,4050
+Pet Adoption Counseling,50,20,1000
+Hydrotherapy for Pets,85,35,2975
+Bird Grooming,25,40,1000
+Fish Tank Cleaning,60,30,1800
+Horse Grooming,150,25,3750
+Rabbit Grooming,40,45,1800
+Pet Photography,200,15,3000
+Pet Funeral Service,300,10,3000
+Small Animal Boarding,45,55,2475
+Specialized Pet Nutrition,75,25,1875

@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+{% block title %} Pet Haven - Order Summary {% endblock %}
+{% block style %}
+    <link rel="stylesheet" href="static/css/order_summary.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+    <!-- Main Content -->
+        <div class="navbar">
+            <h2>Order Summary</h2>
+        </div>
+
+        <div class="container">
+            <div class="order-container">
+                <!-- Left Section (Delivery Information & Payment) -->
+                <div class="left-section">
+                    <div class="delivery-info">
+                        <h2>Delivery Information</h2>
+                        <form id="order-form">
+                            <label>Name</label>
+                            <input type="text" id="name" placeholder="Enter your name" required>
+                            <label>Mobile Number</label>
+                            <input type="text" id="phone" placeholder="Enter your phone no." required>
+                            <label>Email</label>
+                            <input type="email" id="email" placeholder="Enter your email address" required>
+                            <label>Address</label>
+                            <input type="text" id="address" placeholder="Enter your address" required>
+                            <label>City</label>
+                            <input type="text" id="city" placeholder="Enter your city" required>
+                            <label>State</label>
+                            <input type="text" id="state" placeholder="Enter your state" required>
+                            <label>ZIP Code</label>
+                            <input type="text" id="zip" placeholder="Enter your zipcode" required>
+                        </form>
+                    </div>
+
+                    <div class="payment-method">
+                        <h2>Payment Method</h2>
+                        <label><input type="radio" name="payment" checked> Online Payment</label>
+                        <label><input type="radio" name="payment"> Cash on Delivery</label>
+                        <label><input type="radio" name="payment"> POS on Delivery</label>
+                    </div>
+                </div>
+
+                <!-- Right Section (Order Summary) -->
+                <div class="right-section">
+                    <div class="order-summary">
+                        <h2>Cart Items</h2>
+                        <div id="cart-items"></div>
+                        <div class="order-total">
+                            <p><strong>Subtotal</strong> <span id="subtotal">Rs. 0</span></p>
+                            <p><strong>Shipping</strong> <span>Free</span></p>
+                            <p><strong>Total</strong> <span id="total">Rs. 0</span></p>
+                        </div>
+                    </div>
+                    <button class="confirm-order">Confirm Order</button>
+                </div>
+            </div>
+        </div>
+   
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchCartData(); // Load cart data when the page loads
+
+            document.querySelectorAll("input[name='payment']").forEach(radio => {
+                radio.addEventListener("change", function () {
+                    localStorage.setItem("paymentMethod", this.nextSibling.textContent.trim());
+                });
+            });
+            
+            document.querySelector(".confirm-order").addEventListener("click", function (event) {
+                event.preventDefault();  // Prevent default form submission
+                let selectedPayment = document.querySelector("input[name='payment']:checked").nextSibling.textContent.trim();
+                localStorage.setItem("paymentMethod", selectedPayment);
+                if (validateForm()) {
+                    confirmOrder(); // Only proceed if validation passes
+                }
+            });
+        });
+
+        // Fetch Cart Data from Database
+        function fetchCartData() {
+            fetch("/api/cart")
+            .then(response => response.json())
+            .then(data => {
+                const cartItemsContainer = document.getElementById("cart-items");
+                const subtotalElement = document.getElementById("subtotal");
+                const totalElement = document.getElementById("total");
+                const orderForm = document.querySelector(".order-form");
+                const emptyCartMessage = document.querySelector(".empty-cart-message");
+
+                cartItemsContainer.innerHTML = ""; // Clear previous items
+                let totalAmount = 0;
+
+                // Check if cart is empty
+                if (!data.cart || data.cart.length === 0) {
+                    // Display empty cart message
+                    if (!emptyCartMessage) {
+                        const emptyMessage = document.createElement("div");
+                        emptyMessage.className = "empty-cart-message";
+                        emptyMessage.innerHTML = `
+                            <p>Your cart is empty.</p>
+                            <a href={{url_for('dashboard')}} class="back-to-shopping">Back to Shopping</a>
+                        `;
+                        cartItemsContainer.appendChild(emptyMessage);
+                    }
+                    
+                    // Hide order form if it exists
+                    if (orderForm) {
+                        orderForm.style.display = "none";
+                    }
+                    
+                    // Set totals to zero
+                    subtotalElement.textContent = "Rs. 0";
+                    totalElement.textContent = "Rs. 0";
+                    
+                    return;
+                }
+                
+                // Show order form if it was hidden
+                if (orderForm) {
+                    orderForm.style.display = "block";
+                }
+
+                data.cart.forEach(item => {
+                    const cartItem = document.createElement("div");
+                    cartItem.classList.add("order-item");
+
+                    if (item.type === "dog") {
+                        cartItem.innerHTML = `
+                            <img src="${item.image}" alt="${item.name}">
+                            <div class="item-details">
+                                <h3>${item.name}</h3>
+                                <p>Breed: ${item.breed}</p>
+                                <p>Age: ${item.age}</p>
+                                <p class="item-price">Rs. ${item.price}</p>
+                            </div>
+                            <button class="remove-from-cart" data-id="${item.id}" data-type="dog">Remove</button>
+                        `;
+                        totalAmount += item.price;
+                    } else if (item.type === "booking") {
+                        cartItem.innerHTML = `
+                            <img src="static/images/istockphoto-1154973359-612x612.jpg" alt="Booking">
+                            <div class="item-details">
+                                <h3>Service: ${item.service_name}</h3>
+                                <p>Provider: ${item.provider_id}</p>
+                                <p>Date: ${item.date}</p>
+                                <p>Duration: ${item.duration} Hours</p>
+                                <p class="item-price">Rs. ${item.total_cost}</p>
+                            </div>
+                            <button class="remove-from-cart" data-id="${item.id}" data-type="booking">Remove</button>
+                        `;
+                        totalAmount += item.total_cost;
+                    }
+
+                    cartItemsContainer.appendChild(cartItem);
+                });
+
+                subtotalElement.textContent = `Rs. ${totalAmount}`;
+                totalElement.textContent = `Rs. ${totalAmount}`;
+
+                // Attach event listeners for remove buttons
+                document.querySelectorAll(".remove-from-cart").forEach(button => {
+                    button.addEventListener("click", function () {
+                        removeFromCart(this.getAttribute("data-id"), this.getAttribute("data-type"));
+                    });
+                });
+            })
+            .catch(error => console.error("Error fetching cart data:", error));
+        }
+
+        // Remove Dog from Cart
+        function removeFromCart(itemId, itemType) {
+            let requestData = {};
+            if (itemType === "dog") {
+                requestData.dog_id = itemId;
+            } else if (itemType === "booking") {
+                requestData.booking_id = itemId;
+            }
+
+            fetch("/cart/remove", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errData => { 
+                        throw new Error(errData.error || `Server responded with status: ${response.status}`); 
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // Find the item element
+                const itemElement = document.querySelector(`.order-item button[data-id="${itemId}"][data-type="${itemType}"]`).closest('.order-item');
+                
+                // Add visual feedback
+                if (itemElement) {
+                    itemElement.style.opacity = "0.5";
+                    itemElement.style.transform = "translateX(100px)";
+                    itemElement.style.transition = "all 0.3s ease";
+                }
+
+                // Show success message
+                alert(`${itemType.charAt(0).toUpperCase() + itemType.slice(1)} removed from cart!`);
+
+                // Update cart count dynamically
+                const cartCountElement = document.getElementById("cart-count");
+                if (cartCountElement) {
+                    cartCountElement.textContent = data.cart_count;
+                }
+
+                // Small delay before refreshing to allow UI transition
+                setTimeout(() => {
+                    fetchCartData(); // Refresh cart
+                }, 300);
+            })
+            .catch(error => {
+                console.error(`Error removing ${itemType} from cart:`, error);
+                alert(`Error removing ${itemType}. Please try again!`);
+            });
+        }
+
+        // Validate Form Before Order Submission
+        function validateForm() {
+            const inputs = document.querySelectorAll("#order-form input");
+            let isValid = true;
+            let errorMessages = [];
+
+            inputs.forEach(input => {
+                let label = input.labels[0] ? input.labels[0].textContent : "Field";
+
+                if (!input.value.trim()) {
+                    errorMessages.push(`${label} is required.`);
+                    isValid = false;
+                }
+
+                // Validate Phone Number (10-digit only)
+                if (input.id === "phone" && !/^\d{10}$/.test(input.value.trim())) {
+                    errorMessages.push("Enter a valid 10-digit phone number.");
+                    isValid = false;
+                }
+
+                // Validate ZIP Code (6-digit only)
+                if (input.id === "zip" && !/^\d{6}$/.test(input.value.trim())) {
+                    errorMessages.push("Enter a valid 6-digit ZIP code.");
+                    isValid = false;
+                }
+            });
+
+            if (!isValid) {
+                alert(errorMessages.join("\n"));
+            }
+            return isValid;
+        }
+
+        // Confirm Order & Place in Database
+        function confirmOrder() {
+            const address = document.getElementById("address").value.trim();
+            const city = document.getElementById("city").value.trim();
+            const state = document.getElementById("state").value.trim();
+            const zip = document.getElementById("zip").value.trim();
+
+            const requestData = { address, city, state, zip };
+
+            console.log("Sending Order Data:", requestData);  // Debugging: Log the payload
+
+            fetch("/order-confirm", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errData => { 
+                        throw new Error(errData.error || "Failed to place order."); 
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    console.error("Server Error:", data.error);
+                    alert("Order Failed: " + data.error);
+                } else {
+                    alert("Order Placed Successfully!");
+                    document.getElementById("order-form").reset(); // Clear form after order
+                    if (data.order_id) {
+                        window.location.href = `/order-confirm?order_id=${data.order_id}`;
+                    } else {
+                        alert("Order ID missing. Redirecting to homepage.");
+                        window.location.href = "/";
+                    }
+                }
+            })
+            .catch(error => {
+                console.error("Fetch Error:", error);
+                alert(error.message || "Failed to place order. Please try again!");
+            });
+        }
+    </script>
+{% endblock %}

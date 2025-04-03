@@ -1,0 +1,134 @@
+/* General Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #f8f9fa, #e3f2fd);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100vh;
+    padding: 20px;
+}
+
+/* Header */
+.header-section {
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-title {
+    font-size: 24px;
+    margin: 0;
+}
+
+/* Authentication Container */
+.auth-container {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    max-width: 500px;
+    width: 100%;
+    margin-top: 80px; /* Added margin to avoid overlap with header */
+    min-height: 550px; /* Stability */
+}
+
+/* Card UI for Forms */
+.auth-container form {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Tabs */
+.nav-tabs {
+    border-bottom: none;
+}
+
+.nav-tabs .nav-link {
+    font-weight: bold;
+    color: #333;
+    border: none;
+    background: transparent;
+}
+
+.nav-tabs .nav-link.active {
+    background: #28a745;
+    color: white;
+    border-radius: 8px;
+}
+
+/* Form Fields */
+.form-label {
+    font-weight: 600;
+}
+
+.form-control {
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+}
+
+/* Buttons */
+button {
+    background: #28a745;
+    color: white;
+    border-radius: 8px;
+    border: none;
+    padding: 10px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background: #218838;
+}
+
+/* Admin Login Styling */
+#admin-login form {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.15);
+    text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 500px) {
+    .auth-container {
+        padding: 20px;
+    }
+    
+    .header-title {
+        font-size: 20px;
+    }
+    
+    .d-flex button {
+        width: 48%;
+    }
+}
+

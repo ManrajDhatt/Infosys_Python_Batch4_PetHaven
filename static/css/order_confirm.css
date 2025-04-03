@@ -1,0 +1,116 @@
+.order-container {
+    display: flex;
+    justify-content: center;
+    margin: 50px 0;
+    width: 90%;
+}
+
+.order-summary {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    max-width: 600px;
+    width: 100%;
+    margin-left: 16%;
+}
+
+.order-header {
+    text-align: center;
+}
+
+.order-header i {
+    font-size: 50px;
+    color: green;
+    margin-bottom: 10px;
+}
+
+.order-header h2{
+    margin-bottom: 8px;
+}
+
+.order-details {
+    margin-top: 20px;
+}
+
+.order-info {
+    margin-bottom: 15px;
+}
+
+.order-info h3 {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.order-items {
+    margin-top: 20px;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    margin-top: 5px;
+}
+
+.item-info {
+    flex-grow: 1;
+}
+
+.item-price {
+    font-weight: bold;
+}
+
+.order-pricing {
+    margin-top: 20px;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 5px 0;
+}
+
+.grand-total {
+    font-size: 18px;
+    font-weight: bold;
+    border-top: 2px solid #ddd;
+    padding-top: 10px;
+}
+
+.continue-shopping {
+    display: block;
+    width: 100%;
+    background: #4CAF50;
+    color: white;
+    padding: 0.7rem;
+    margin-top: 1rem;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.continue-shopping:hover {
+    background-color: #347336;
+}
+
+@media (max-width: 1024px) {
+    .order-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    .order-summary {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .order-summary {
+        width: 90%;
+        margin-left: 0.5%;
+    }
+}

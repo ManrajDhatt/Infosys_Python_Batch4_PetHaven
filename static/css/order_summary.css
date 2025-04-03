@@ -1,0 +1,217 @@
+.main-content {
+    padding-bottom: 0;
+}
+
+.container {
+    width: 100%;
+    max-width: 1300px;
+    margin: 50px auto;
+    margin-bottom: 10px;
+    padding-right: 0px;
+    margin-right: 0px;
+}
+
+.order-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Left section styling */
+.left-section {
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.delivery-info, .payment-method {
+    background: #fff;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    width: 92%;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.delivery-info h2, .payment-method h2, .order-summary h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+form label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: bold;
+}
+
+input[type="text"], input[type="email"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.payment-method label {
+    display: block;
+    margin: 10px 0;
+    font-size: 1rem;
+}
+
+/* Right section styling */
+.right-section {
+    width: 45%;
+    margin-top: 1rem;
+}
+
+.order-summary {
+    background: #fff;
+    padding: 1.5rem;
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+  
+.order-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    background: #fff;
+    padding: 0.8rem;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);  
+    transition: transform 0.2s ease-in-out;
+}
+  
+.order-item:hover {
+    transform: scale(1.02);
+}
+  
+.order-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* Styling for booking SVG image */
+.order-item img[src*="booking.svg"] {
+    padding: 5px;
+    background-color: #f8f9fa;
+    border: 2px solid #4CAF50;
+}
+  
+.item-details {
+    flex-grow: 1;
+}
+  
+.item-details h3 {
+    font-size: 18px;
+    color: #444;
+}
+  
+.item-details p {
+    font-size: 14px;
+    color: #666;
+}
+
+#price{
+    font-size: 16px;
+    float: right;
+}
+
+.remove-from-cart{
+    background: #4CAF50;
+    color: white;
+    padding: 0.4rem;
+    border: none;
+    text-align: center;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.remove-from-cart:hover{
+    background-color: #347336;
+}
+
+.order-total {
+    margin-top: 1rem;
+    margin-right: 10px;
+    margin-left: 10px;
+    font-size: 17px;
+    color: #333;
+}
+
+.order-total span{
+    float: right;
+}
+
+.confirm-order {
+    background: #4CAF50;
+    color: white;
+    padding: 0.7rem;
+    border: none;
+    width: 100%;
+    text-align: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.confirm-order:hover {
+    background-color: #347336;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .order-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    .left-section, .right-section {
+        width: 100%;
+    }
+    .delivery-info, .payment-method, .order-summary {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+        margin-left: 0;
+        padding-left: 25px;
+    }
+    .order-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    .left-section, .right-section {
+        width: 100%;
+    }
+    .delivery-info, .payment-method, .order-summary {
+        width: 100%;
+        padding: 1rem;
+    }
+    .order-item img {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+@media (max-width: 480px) {
+    .confirm-order {
+        font-size: 1rem;
+        padding: 0.6rem;
+    }
+    input[type="text"], input[type="email"] {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+}

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard - Pet Haven</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='customer_dashboard.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="fas fa-paw"></i>
+            <h2>PetHaven</h2>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item active"><i class="fas fa-home"></i> Dashboard</li>
+            <li class="nav-item"><i class="fas fa-shopping-cart"></i> Buy a Dog</li>
+            <li class="nav-item"><i class="fas fa-spa"></i> Book Grooming</li>
+            <li class="nav-item"><i class="fas fa-trophy"></i> Competitions</li>
+            <li class="nav-item"><i class="fas fa-paw"></i> Pet Profile</li>
+            <li class="nav-item"><i class="fas fa-cog"></i> Settings</li>
+           <li class="nav-item">
+                <a class="nav-link logout" href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        
+        <!-- Navbar -->
+        <div class="navbar">
+            <h2>Customer Dashboard</h2>
+            <div class="nav-right">
+                <div class="notification">
+                    <i class="fas fa-bell fa-2x"></i>
+                    <span class="badge">3</span>
+                </div>
+                <div class="profile">
+                    <div class="profile-pic">{{ user_initials }}</div>
+                    <span>{{ user_name }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <h3>Welcome, Pet Owner!</h3>
+            <p>Manage your pet services and explore exciting features.</p>
+
+            <div class="grid">
+                <div class="card">
+                    <i class="fas fa-shopping-cart card-icon"></i>
+                    <h5>Buy a Dog</h5>
+                    <p>Find the perfect dog for your family.</p>
+                    <a href="dog_sales.html" class="btn btn-success">Explore</a>
+                </div>
+                <div class="card">
+                    <i class="fas fa-spa card-icon"></i>
+                    <h5>Book Grooming</h5>
+                    <p>Schedule a spa session for your pet.</p>
+                    <a href="spa_booking.html" class="btn btn-success">Book Now</a>
+                </div>
+                <div class="card">
+                    <i class="fas fa-trophy card-icon"></i>
+                    <h5>Competitions</h5>
+                    <p>Register your pet for competitions.</p>
+                    <a href="competition_registration.html" class="btn btn-success">Join</a>
+                </div>
+                <div class="card">
+                    <i class="fas fa-paw card-icon"></i>
+                    <h5>Pet Profile</h5>
+                    <p>Manage your pet's health & history.</p>
+                    <a href="pet_profile.html" class="btn btn-success">View</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2025 PetHaven. All Rights Reserved.</p>
+            <ul>
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms & Conditions</a></li>
+                <li><a href="#">Contact Support</a></li>
+            </ul>
+        </footer>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='customer_dashboard.js') }}" defer></script>
+</body>
+</html>

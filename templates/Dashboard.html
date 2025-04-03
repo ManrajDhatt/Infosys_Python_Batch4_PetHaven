@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{%block title %}
+    Dog Services
+{% endblock %}
+{% block style %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+{% block content %}
+<div class="mc">
+    <!-- Main Content -->
+    <div class="container">
+        <div class="header">
+            <h2>Our Dog Services</h2>
+            <p>Comprehensive care services designed to keep your furry friend happy, healthy, and thriving</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" data-category="all">All</button>
+            <button class="tab" data-category="grooming">Grooming</button>
+            <button class="tab" data-category="therapies">Therapy</button>
+            <button class="tab" data-category="health">Health</button>
+            <button class="tab" data-category="training">Training</button>
+            <button class="tab" data-category="spa">Spa</button>
+        </div>
+    </div>    
+        <div class="services-grid" id="servicesGrid"></div>
+</div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
