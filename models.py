@@ -234,8 +234,8 @@ class CartItem(db.Model):
 
 
 class Event(db.Model):
-    # id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4())) -> OLD CODE
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    # id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=False)
     date = db.Column(db.String(50), nullable=False)
