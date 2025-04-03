@@ -32,15 +32,6 @@
                 <span class="badge">0</span>
             </div>
 
-            {% if current_user.is_petOwner %}
-            <div class="cart-icon">
-                <a href="/cart" title="View Cart">
-                    <i class="fas fa-shopping-cart fa-2x"></i>
-                    <span class="badge" id="cart-count">0</span>
-                </a>
-            </div>
-            {% endif %}
-            
             <div class="profile-dropdown">
                 <div class="profile" onclick="toggleDropdown()">
                     <div class="profile-pic">{{ current_user.user_name[0] }}</div>
