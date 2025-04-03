@@ -605,44 +605,6 @@ body {
         padding: 20px;
     }
 }
-
-/* Cart icon styles */
-.cart-icon {
-    position: relative;
-    margin-right: 20px;
-    cursor: pointer;
-}
-
-.cart-icon a {
-    color: #343a40;
-    text-decoration: none;
-}
-
-.cart-icon i {
-    transition: color 0.2s ease;
-}
-
-.cart-icon:hover i {
-    color: #4CAF50;
-}
-
-.cart-icon .badge {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background-color: #4CAF50;
-    color: white;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 12px;
-    font-weight: bold;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-
 /* Notification styles - existing code */
 .notification {
     position: relative;
