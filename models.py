@@ -142,6 +142,8 @@ class Booking(db.Model):
     order_details = db.relationship("OrderDetail", back_populates="booking", lazy=True)
     cart_items = db.relationship("CartItem", back_populates="booking", lazy=True)
 
+    
+
     def __repr__(self):
         return f"<Booking {self.booking_id} - User {self.user_id}>"
 
@@ -235,8 +237,8 @@ class CartItem(db.Model):
 
 
 class Event(db.Model):
-    # id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4())) -> OLD CODE
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4())) 
+    # id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=False)
     date = db.Column(db.String(50), nullable=False)
@@ -612,7 +614,8 @@ def insert_seed_data():
             )
             db.session.add(user)
             user_map[provider["service_id"]] = user_id
-    
+    # After all other seed data is created
+    # create_test_orders_and_bookings()
     db.session.commit()
 
     if ServiceProvider.query.count() == 0:
@@ -875,3 +878,183 @@ def fetch_recent_bookings():
         return final_data
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def create_test_orders_and_bookings():
+    """Create test orders and bookings for dashboard data"""
+    # Create some test orders with dogs
+    for i in range(10):
+        user = User.query.filter_by(user_type='Pet Owner').order_by(func.random()).first()
+        if user:
+            order = Order(
+                user_id=user.user_id,
+                total_amount=random.randint(1000, 5000),
+                shipping_address=f"{random.randint(1, 100)} Test St",
+                payment_status=random.choice([PaymentStatus.PENDING, PaymentStatus.SUCCESS]),
+                order_date=datetime.now() - timedelta(days=random.randint(1, 30)))
+            
+            db.session.add(order)
+            db.session.flush()  # To get the order ID
+            
+            # Add order details with dogs
+            dog = Dogs.query.order_by(func.random()).first()
+            if dog:
+                order_detail = OrderDetail(
+                    order_id=order.order_id,
+                    dog_id=dog.dog_id,
+                    quantity=1)
+                db.session.add(order_detail)
+    
+    # Create some test bookings
+    for i in range(10):
+        user = User.query.filter_by(user_type='Pet Owner').order_by(func.random()).first()
+        if user:
+            booking = Booking(
+                user_id=user.user_id,
+                duration=time(random.randint(1, 3), random.randint(0, 59)),
+                total_cost=random.randint(500, 2000),
+                booking_date=datetime.now() - timedelta(days=random.randint(1, 30)))
+            
+            db.session.add(booking)
+            db.session.flush()
+            
+            # Add booking details
+            service_names = ["Grooming", "Training", "Health Check", "Spa", "Therapy"]
+            booking_detail = BookingDetail(
+                booking_id=booking.booking_id,
+                service_id=str(random.randint(1, 5)),
+                user_id=user.user_id,
+                service_name=random.choice(service_names),
+                service_price=random.randint(500, 2000))
+            db.session.add(booking_detail)
+    
+    # Create some test event registrations
+    for i in range(5):
+        event = Event(
+            title=f"Dog Show {i+1}",
+            description=f"Annual dog show event #{i+1}",
+            date=(datetime.now() + timedelta(days=random.randint(10, 60))).strftime("%Y-%m-%d"),
+            location="Test Location",
+            prizes="Trophies and treats",
+            eligibility="All breeds welcome",
+            fee=random.randint(500, 1500),
+            image_filename="default.jpg")
+        
+        db.session.add(event)
+        db.session.flush()
+        
+        # Add registrations
+        for j in range(random.randint(3, 8)):
+            user = User.query.filter_by(user_type='Pet Owner').order_by(func.random()).first()
+            if user:
+                registration = Registration(
+                    user_id=user.user_id,
+                    event_id=event.id,
+                    pet_name=f"Pet {j+1}",
+                    pet_type="Dog",
+                    pet_age=random.randint(1, 10),
+                    paid=random.choice([True, False]))
+                db.session.add(registration)
+    
+    db.session.commit()
+
+
+
+
+
+
+
+
+
+
+
+
+# Add these to your existing models.py
+
+def get_active_users(limit=10):
+    """Get active users for the admin dashboard"""
+    return User.query.filter_by(is_active=True).order_by(User.user_name).limit(limit).all()
+
+
+def calculate_dog_sales_revenue():
+    """Calculate revenue from dog sales"""
+    return db.session.query(
+        func.sum(OrderDetail.quantity * Dogs.price)
+    ).join(Dogs, OrderDetail.dog_id == Dogs.dog_id
+    ).scalar() or 0
+
+def calculate_services_revenue():
+    """Calculate revenue from services"""
+    return db.session.query(
+        func.sum(Booking.total_cost)
+    ).scalar() or 0
+
+def calculate_total_revenue():
+    """Calculate total revenue from all sources"""
+    return (calculate_dog_sales_revenue() + 
+            calculate_services_revenue() + 
+            calculate_events_revenue())
+
+def get_recent_dogs_sold(limit=5):
+    """Get recently sold dogs for the admin dashboard"""
+    return db.session.query(
+        Dogs.name,
+        Dogs.breed,
+        Dogs.price
+    ).join(OrderDetail, OrderDetail.dog_id == Dogs.dog_id
+    ).join(Order, OrderDetail.order_id == Order.order_id
+    ).filter(OrderDetail.dog_id.isnot(None)
+    ).order_by(Order.order_date.desc()
+    ).limit(limit).all()
+
+def calculate_events_revenue():
+    """Calculate revenue from events"""
+    # Alternative implementation that works with your model structure
+    total = 0
+    events = Event.query.all()
+    for event in events:
+        registrations = Registration.query.filter_by(event_id=event.id, paid=True).count()
+        total += event.fee * registrations
+    return total
+
+def get_booking_stats():
+    """Get booking statistics for dashboard"""
+    # Count total bookings
+    total_bookings = Booking.query.count()
+    
+    # Find most booked service
+    most_booked = db.session.query(
+        BookingDetail.service_name,
+        func.count(BookingDetail.booking_detail_id).label('count')
+    ).group_by(BookingDetail.service_name
+    ).order_by(func.count(BookingDetail.booking_detail_id).desc()
+    ).first()
+    
+    return {
+        'total': total_bookings,
+        'most_booked': most_booked[0] if most_booked else 'N/A',
+        'most_booked_count': most_booked[1] if most_booked else 0
+    }

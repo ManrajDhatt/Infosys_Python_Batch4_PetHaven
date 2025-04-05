@@ -1,0 +1,633 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- Summary Cards -->
+    <div class="row g-4">
+        <!-- Pet Owners Card -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body d-flex justify-content-between align-items-center p-4">
+                    <div>
+                        <h5 class="card-title mb-2">Users</h5>
+                        <h2 class="mb-0">{{ pet_owners_count }}</h2>
+                    </div>
+                    <div>
+                        <i class="fas fa-users fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Service Providers Card -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body d-flex justify-content-between align-items-center p-4">
+                    <div>
+                        <h5 class="card-title mb-2">Service Providers</h5>
+                        <h2 class="mb-0">{{ service_providers_count }}</h2>
+                    </div>
+                    <div>
+                        <i class="fas fa-user-md fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dogs Sold Card -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body d-flex justify-content-between align-items-center p-4">
+                    <div>
+                        <h5 class="card-title mb-2">Dogs Sold</h5>
+                        <h2 class="mb-0">{{ dogs_sold_count }}</h2>
+                    </div>
+                    <div>
+                        <i class="fas fa-dog fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Total Revenue Card -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card  text-white h-100" style=" background-color: rgba(255, 55, 180, 0.9);">
+                <div class="card-body d-flex justify-content-between align-items-center p-4">
+                    <div>
+                        <h5 class="card-title mb-2">Total Revenue</h5>
+                        <h2 class="mb-0">₹{{ total_revenue }}</h2>
+                    </div>
+                    <div>
+                        <i class="fas fa-rupee-sign fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Revenue and Booking Section -->
+    <div class="row mt-4 g-4">
+        <!-- Revenue Breakdown Pie Chart -->
+        <div class="col-xl-6">
+            <div class="card h-100">
+                <div class="card-header bg-white py-3">
+                    <i class="fas fa-chart-pie me-2"></i>
+                    Revenue Breakdown
+                </div>
+                <div class="card-body p-4">
+                    <div style="height: 300px;">
+                        <canvas id="revenuePieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Booking Stats -->
+        <div class="col-xl-6">
+            <div class="card h-100">
+                <div class="card-header bg-white py-3">
+                    <i class="fas fa-calendar-check me-2"></i>
+                    Booking Statistics
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="card bg-light h-100">
+                                <div class="card-body text-center p-4">
+                                    <h5 class="card-title text-muted">Total Bookings</h5>
+                                    <h2 class="text-primary">{{ total_bookings }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light h-100">
+                                <div class="card-body text-center p-4">
+                                    <h5 class="card-title text-muted">Most Booked</h5>
+                                    <h4 class="text-success">{{ most_booked_service }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <canvas id="bookingTrendChart" height="150"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<!--      -->
+    
+    
+    <!-- Event Statistics Section -->
+    <div class="row mt-4 g-4">
+        <!-- Event Participation Chart -->
+        <div class="col-xl-6">
+            <div class="card h-100">
+                <div class="card-header bg-white py-3">
+                    <i class="fas fa-calendar-alt me-2"></i>
+                    Event Participation
+                </div>
+                <div class="card-body p-4">
+                    <canvas id="eventChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Event Statistics Table -->
+        <div class="col-xl-6">
+            <div class="card h-100">
+                <div class="card-header bg-white py-3">
+                    <i class="fas fa-table me-2"></i>
+                    Event Statistics
+                </div>
+                <div class="card-body p-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Event</th>
+                                    <th class="text-end">Participants</th>
+                                    <th class="text-end">Revenue</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for event in event_stats %}
+                                <tr>
+                                    <td>{{ event.event_title }}</td>
+                                    <td class="text-end">{{ event.total_participants }}</td>
+                                    <td class="text-end">₹{{ event.total_fees_collected }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-3 row">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h5 class="text-muted">Total Events</h5>
+                                    <h3>{{ total_events }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h5 class="text-muted">Attendance Rate</h5>
+                                    <h3>{{ attendance_rate }}%</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Top Performers Section -->
+    <div class="row mt-4 g-4">
+        <!-- Top Service Providers -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header bg-white py-3">
+                    <i class="fas fa-star me-2"></i>
+                    Top Service Providers
+                </div>
+                <div class="card-body p-3">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-3">Provider</th>
+                                    <th>Service</th>
+                                    <th class="text-center">Bookings</th>
+                                    <th class="text-end pe-3">Revenue</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for provider in top_service_providers %}
+                                <tr>
+                                    <td class="ps-3">{{ provider.name }}</td>
+                                    <td>{{ provider.service_name }}</td>
+                                    <td class="text-center">{{ provider.order_count }}</td>
+                                    <td class="text-end pe-3">₹{{ provider.order_count * 500 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recently Sold Dogs -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header bg-white py-3">
+                    <i class="fas fa-dog me-2"></i>
+                    Recently Sold Dogs
+                </div>
+                <div class="card-body p-3">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-3">Dog</th>
+                                    <th>Breed</th>
+                                    <th>Price</th>
+                                    <th class="text-end pe-3">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for dog in recent_dogs_sold %}
+                                <tr>
+                                    <td class="ps-3">{{ dog.name }}</td>
+                                    <td>{{ dog.breed }}</td>
+                                    <td>₹{{ dog.price }}</td>
+                                    <td class="text-end pe-3">{{ "Today" if loop.index0 < 2 else "Yesterday" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Initialize all charts when DOM is loaded
+    document.addEventListener('DOMContentLoaded',function() {
+        // Revenue Pie Chart
+        const revenuePieCtx = document.getElementById('revenuePieChart').getContext('2d');
+        const revenuePieChart = new Chart(revenuePieCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Dog Sales', 'Services', 'Events'],
+                datasets: [{
+                    data: [{{ dog_sales_revenue }}, {{ services_revenue }}, {{ events_revenue }}],
+                    backgroundColor: [
+                        'rgba(78, 115, 223, 0.8)',
+                        'rgba(28, 200, 138, 0.8)',
+                        'rgba(246, 194, 62, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(78, 115, 223, 1)',
+                        'rgba(28, 200, 138, 1)',
+                        'rgba(246, 194, 62, 1)'
+                    ],
+                    borderWidth: 1
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ₹${context.raw.toLocaleString()}`;
+                            }
+                        }
+                    },
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    }
+                },
+                cutout: '70%',
+            },
+        });
+
+        // Event Participation Chart
+        const eventCtx = document.getElementById('eventChart').getContext('2d');
+        const eventChart = new Chart(eventCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ event_stats|map(attribute='event_title')|list|tojson|safe }},
+                datasets: [{
+                    label: 'Participants',
+                    data: {{ event_stats|map(attribute='total_participants')|list|tojson|safe }},
+                    // backgroundColor: 'rgba(150, 155, 100, 0.9)',
+                    backgroundColor: 'rgba(255, 127, 80, 0.9)',
+
+
+                    // borderColor: 'rgba(124, 58, 237, 1)',
+                    borderWidth: 1,
+                    maxBarWidth:20,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Events',
+                            font: {
+                                weight: 'bold'
+                            }
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Participants',
+                            font: {
+                                weight: 'bold'
+                            }
+                        },
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Stacked Revenue Chart
+        const stackedRevenueCtx = document.getElementById('stackedRevenueChart').getContext('2d');
+        const stackedRevenueChart = new Chart(stackedRevenueCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [
+                    {
+                        label: 'Dog Sales',
+                        data: [12000, 19000, 15000, 18000, 21000, 25000, 22000, 24000, 23000, 28000, 26000, 30000],
+                        backgroundColor: 'rgba(78, 115, 223, 0.8)',
+                    },
+                    {
+                        label: 'Services',
+                        data: [8000, 12000, 10000, 11000, 15000, 18000, 16000, 17000, 19000, 21000, 20000, 22000],
+                        backgroundColor: 'rgba(28, 200, 138, 0.8)',
+                    },
+                    {
+                        label: 'Events',
+                        data: [5000, 7000, 6000, 8000, 9000, 10000, 9500, 11000, 10500, 12000, 11500, 13000],
+                        backgroundColor: 'rgba(246, 194, 62, 0.8)',
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: 'Month',
+                            font: {
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: 'Revenue (₹)',
+                            font: {
+                                weight: 'bold'
+                            }
+                        },
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                }
+            }
+        });
+
+        // Monthly Bookings Chart
+        const monthlyBookingsCtx = document.getElementById('monthlyBookingsChart').getContext('2d');
+        const monthlyBookingsChart = new Chart(monthlyBookingsCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Monthly Bookings',
+                    data: [45, 60, 55, 70, 65, 80, 75, 82, 88, 95, 90, 100],
+                    borderColor: 'rgba(78, 115, 223, 1)',
+                    backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Monthly Bookings Trend',
+                        font: {
+                            weight: 'bold'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Bookings',
+                            font: {
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Monthly Revenue Chart
+        const monthlyRevenueCtx = document.getElementById('monthlyRevenueChart').getContext('2d');
+        const monthlyRevenueChart = new Chart(monthlyRevenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Monthly Revenue (₹)',
+                    data: [25000, 38000, 31000, 37000, 45000, 53000, 47500, 52000, 52500, 61000, 57500, 65000],
+                    borderColor: 'rgba(28, 200, 138, 1)',
+                    backgroundColor: 'rgba(28, 200, 138, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Monthly Revenue Trend',
+                        font: {
+                            weight: 'bold'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Revenue (₹)',
+                            font: {
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Fetch and render booking trend data
+        fetchBookingTrendData();
+    });
+    fetchBookingTrendData();
+    async function fetchBookingTrendData() {
+        try {
+            const response = await fetch('/data/booking');
+            const data = await response.json();
+            
+            if (data.error) {
+                console.error("Error fetching booking data:", data.error);
+                return;
+            }
+            
+            // Process data for chart
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const bookingsData = new Array(12).fill(0);
+            
+            data.forEach(item => {
+                const monthIndex = parseInt(item.month) - 1;
+                if (monthIndex >= 0 && monthIndex < 12) {
+                    bookingsData[monthIndex] = item.total_bookings;
+                }
+            });
+            
+            // Render booking trend chart
+            const ctx = document.getElementById('bookingTrendChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Monthly Bookings',
+                        data: bookingsData,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+        } catch (error) {
+            console.error("Error fetching booking trend data:", error);
+        }
+    }
+</script>
+
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+    .card {
+        border: none;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+    }
+    .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        font-weight: 600;
+        padding: 1rem 1.25rem;
+    }
+    .table {
+        margin-bottom: 0;
+    }
+    .table thead th {
+        border-bottom: 1px solid #dee2e6;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+    .table tbody tr {
+        transition: background-color 0.15s;
+    }
+    .table tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+    .badge {
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+    .chart-container {
+        position: relative;
+        min-height: 300px;
+    }
+    .avatar-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+    .dog-thumbnail {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+{% endblock %}

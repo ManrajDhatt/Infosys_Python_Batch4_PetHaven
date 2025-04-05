@@ -27,10 +27,21 @@
                 Add Event</a>
 
             {% endif %}
-            <div class="notification">
+            <!-- <div class="notification">
                 <i class="fas fa-bell fa-2x"></i>
                 <span class="badge">0</span>
+            </div> -->
+                       
+            {% if current_user.is_petOwner %}
+            <div class="cart-icon">
+                <a href="{{ url_for('cart_page') }}" title="View Cart">
+                    <i class="fas fa-shopping-cart fa-2x"></i>
+                    <span class="badge" id="cart-count">0</span>
+                </a>
             </div>
+            {% endif %}
+            
+
 
             <div class="profile-dropdown">
                 <div class="profile" onclick="toggleDropdown()">
@@ -39,14 +50,14 @@
 
                 <div class="dropdown-menu" id="profileDropdown">
                     <p class="dropdown-username">{{ current_user.user_name }}</p>
-                    <div class="settings">
+                    <!-- <div class="settings">
                         <p>
                             <a href="{{url_for('settings')}}">
                                 <i class="fas fa-cog"></i>
                                 Settings
                             </a>
                         </p>
-                    </div>
+                    </div> -->
                     <a href="{{ url_for('logout') }}">
                         <i class="fas fa-lock"></i> Logout</a>
                 </div>
@@ -70,6 +81,18 @@
             <li class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
                 <a href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a>
             </li>
+
+            <li class="nav-item {% if request.endpoint == 'CanineMarketplace' %}active{% endif %}">
+                <a href="{{ url_for('CanineMarketplace') }}"><i class="fas fa-dog"></i>Canine Commerce</a>
+            </li>
+            <li class="nav-item {% if request.endpoint == 'services' %}active{% endif %}">
+                <a href="{{ url_for('services') }}"><i class="fa-solid fa-spa"></i>Services</a>
+            </li>
+            <li class="nav-item {% if request.endpoint == 'my_bookings' %}active{% endif %}">
+                <a href="{{ url_for('my_bookings') }}"><i class="fa-solid fa-calendar"></i>My Bookings</a>
+            </li>
+            
+
             <li class="nav-item {% if request.endpoint == 'competitions' %}active{% endif %}">
                 <a href="{{ url_for('competitions') }}"><i class="fas fa-trophy"></i> Competitions</a>
             </li>
@@ -88,7 +111,17 @@
             {% if current_user.is_admin %}
 
             <li class="nav-item {% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
-                <a href="{{ url_for('admin_dashboard') }}"><i class="fas fa-home"></i> Dashboard / All Events</a>
+                <a href="{{ url_for('admin_dashboard') }}"><i class="fas fa-home"></i>Dashboard</a>
+            </li>
+
+            <li class="nav-item {% if request.endpoint == 'ManageDogs' %}active{% endif %}">
+                <a href="{{ url_for('ManageDogs')}}"><i class="fa-solid fa-dog"></i> Manage Dogs</a>
+            </li>
+
+            
+
+            <li class="nav-item {% if request.endpoint == 'ManageCompetitions' %}active{% endif %}">
+                <a href="{{ url_for('ManageCompetitions') }}"><i class="fas fa-trophy"></i>Manage Competitions</a>
             </li>
 
             <li class="nav-item {% if request.endpoint == 'manage_sp' %}active{% endif %}">
@@ -96,18 +129,18 @@
             </li>
 
             <li class="nav-item {% if request.endpoint == 'all_registrations' %}active{% endif %}">
-                <a href="{{ url_for('all_registrations') }}"><i class="fas fa-list-alt"></i> All Registrations</a>
+                <a href="{{ url_for('all_registrations') }}"><i class="fas fa-list-alt"></i>  Manage Event Registrations</a>
             </li>
 
             <li class="nav-item {% if request.endpoint == 'manage_results' %}active{% endif %}">
                 <a href="{{ url_for('manage_results') }}"><i class="fas fa-clipboard-list"></i> Manage Results</a>
             </li>
 
-            <li class="nav-item {% if request.endpoint == 'event_statistics' %}active{% endif %}">
+            <!-- <li class="nav-item {% if request.endpoint == 'event_statistics' %}active{% endif %}">
                 <a href="{{ url_for('event_statistics') }}">
                     <i class="fas fa-hands-clapping"></i> View Event Stats
                 </a>
-            </li>
+            </li> -->
 
             <li class="nav-item {% if request.endpoint == 'analytics_dashboard' %}active{% endif %}">
                 <a href="{{ url_for('analytics') }}">
@@ -128,7 +161,7 @@
 
 
             <!-- Service Provider Routes goes here  -->
-            <li> Service Provider Routes Goes Here </li>
+            <!-- <li> Service Provider Routes Goes Here </li> -->
             {% endif %}
 
             <li class="nav-item {% if request.endpoint == 'logout' %}active{% endif %}">

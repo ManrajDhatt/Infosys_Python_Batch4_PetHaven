@@ -1,36 +1,817 @@
 {% extends 'base.html' %}
 
-{%block style%}
+{% block style %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/service_provider_dashboard.css') }}">
+<style>
+  .dashboard-content {
+    padding: 2rem;
+    background-color: #f8fafc;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  
+  .stats-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .stat-box {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .stat-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(79, 70, 229, 0.2);
+  }
+  
+  .stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  
+  .stat-label {
+    font-size: 1rem;
+    opacity: 0.9;
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  
+  .card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.75rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border-top: 4px solid transparent;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    border-top: 4px solid #6366f1;
+  }
+  
+  .card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1.25rem;
+    color: #6366f1;
+  }
+  
+  .card h5 {
+    font-size: 1.35rem;
+    margin: 0.5rem 0;
+    color: #1e293b;
+    font-weight: 600;
+  }
+  
+  .card p {
+    color: #64748b;
+    flex-grow: 1;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+  
+  .btn-primary {
+    background-color: #6366f1;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    padding: 0.75rem 1.25rem;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    display: inline-block;
+  }
+  
+  .btn-primary:hover {
+    background-color: #4f46e5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+  }
+
+  .btn-secondary {
+    background-color: #e2e8f0;
+    border: none;
+    border-radius: 8px;
+    color: #334155;
+    padding: 0.75rem 1.25rem;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    display: inline-block;
+    margin-left: 10px;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #cbd5e1;
+    transform: translateY(-2px);
+  }
+  
+  .dashboard-intro {
+    color: #475569;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+  }
+
+  /* Appointments table styles */
+  .appointments-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 1.5rem;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  
+  .appointments-table th, 
+  .appointments-table td {
+    padding: 14px 18px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  .appointments-table th {
+    background-color: #f1f5f9;
+    font-weight: 600;
+    color: #334155;
+    position: sticky;
+    top: 0;
+  }
+  
+  .appointments-table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .appointments-table tr:hover td {
+    background-color: #f8fafc;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #64748b;
+  }
+  
+  .empty-state i {
+    font-size: 3rem;
+    color: #cbd5e1;
+    margin-bottom: 1rem;
+  }
+  
+  .empty-state p {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Modal styles */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    animation: fadeIn 0.2s ease;
+    overflow-y: auto;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 2rem;
+    border-radius: 12px;
+    width: 80%;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    animation: slideIn 0.3s ease;
+    position: relative;
+  }
+  
+  @keyframes slideIn {
+    from { transform: translateY(-30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  
+  .modal-content h3 {
+    color: #1e293b;
+    margin-top: 0;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 1.5rem;
+  }
+  
+  .close {
+    position: absolute;
+    right: 1.5rem;
+    top: 1.2rem;
+    color: #64748b;
+    font-size: 1.8rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    z-index: 10;
+  }
+  
+  .close:hover {
+    color: #0f172a;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #334155;
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+  }
+  
+  .form-control:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  }
+  
+  #profile-details p,
+  #service-details p {
+    margin-bottom: 1rem;
+    color: #334155;
+  }
+  
+  #profile-details strong,
+  #service-details strong {
+    color: #0f172a;
+    display: inline-block;
+    width: 120px;
+  }
+
+  /* Loading spinner */
+  .loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 8px;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+</style>
 {% endblock %}
 
 {% block title %}Service Provider Dashboard{% endblock %}
 
 {% block content %}
 <div class="dashboard-content">
-    <h3>Welcome, <span id="username">Service Provider</span>!</h3>
-    <p>Manage your services and track customer appointments.</p>
-
+    <p class="dashboard-intro">You offer <strong id="service-name">services</strong>. Manage your appointments and profile below.</p>
+    
+    <div class="stats-summary">
+        <div class="stat-box">
+            <div class="stat-number" id="upcoming-appointments">0</div>
+            <div class="stat-label">Upcoming Appointments</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number" id="services-offered">0</div>
+            <div class="stat-label">Services Offered</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number" id="average-rating">0</div>
+            <div class="stat-label">Average Rating</div>
+        </div>
+    </div>
+    
     <div class="grid">
-        <div class="card">
+        <div class="card" onclick="showAppointments()">
             <i class="fas fa-calendar-check card-icon"></i>
             <h5>Appointments</h5>
-            <p>View and manage your upcoming bookings.</p>
-            <a href="#appointments" class="btn btn-success">View</a>
+            <p>View and manage your upcoming bookings. Schedule new appointments and edit existing ones.</p>
+            <a href="javascript:void(0);" class="btn btn-primary">View Appointments</a>
         </div>
-        <div class="card">
+        <div class="card" onclick="showServiceDetails()">
             <i class="fas fa-tools card-icon"></i>
-            <h5>Manage Services</h5>
-            <p>Update and modify available services.</p>
-            <a href="#manage_services" class="btn btn-success">Manage</a>
+            <h5>Service Details</h5>
+            <p>View and update your service details including description, pricing, and availability.</p>
+            <a href="javascript:void(0);" class="btn btn-primary">Service Details</a>
         </div>
-        <div class="card">
-            <i class="fas fa-comments card-icon"></i>
-            <h5>Customer Reviews</h5>
-            <p>Check feedback and improve service.</p>
-            <a href="#reviews" class="btn btn-success">View</a>
+        <div class="card" onclick="showProfile()">
+            <i class="fas fa-user card-icon"></i>
+            <h5>Your Profile</h5>
+            <p>Update your personal information, contact details, and professional credentials.</p>
+            <a href="javascript:void(0);" class="btn btn-primary">Edit Profile</a>
         </div>
     </div>
 </div>
 
+<!-- Appointments Modal -->
+<div id="appointments-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('appointments-modal')">&times;</span>
+        <h3>Your Upcoming Appointments</h3>
+        <div id="appointments-container">
+            <!-- Appointments will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<!-- Service Details Modal -->
+<div id="service-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('service-modal')">&times;</span>
+        <h3>Your Service Details</h3>
+        <div id="service-details">
+            <!-- Service details will be loaded here -->
+        </div>
+        <div style="margin-top: 2rem;">
+            <form id="service-form" style="display: none;">
+                <div class="form-group">
+                    <label for="edit-service-name">Service Name</label>
+                    <input type="text" id="edit-service-name" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="edit-service-description">Description</label>
+                    <textarea id="edit-service-description" class="form-control" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-service-rate">Hourly Rate ($)</label>
+                    <input type="number" id="edit-service-rate" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="edit-service-experience">Experience</label>
+                    <input type="text" id="edit-service-experience" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="edit-service-location">Location</label>
+                    <input type="text" id="edit-service-location" class="form-control">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-primary" onclick="saveServiceDetails()">
+                        <span id="service-save-spinner" style="display: none;" class="loading-spinner"></span>
+                        Save Changes
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="toggleServiceForm(false)">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Modal -->
+<div id="profile-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('profile-modal')">&times;</span>
+        <h3>Your Profile</h3>
+        <div id="profile-details">
+            <!-- Profile details will be loaded here -->
+        </div>
+        <div style="margin-top: 2rem;">
+            <form id="profile-form" style="display: none;">
+                <div class="form-group">
+                    <label for="edit-profile-name">Name</label>
+                    <input type="text" id="edit-profile-name" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="edit-profile-email">Email</label>
+                    <input type="email" id="edit-profile-email" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="edit-profile-phone">Phone</label>
+                    <input type="tel" id="edit-profile-phone" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="edit-profile-address">Address</label>
+                    <textarea id="edit-profile-address" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-primary" onclick="saveProfileDetails()">
+                        <span id="profile-save-spinner" style="display: none;" class="loading-spinner"></span>
+                        Save Changes
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="toggleProfileForm(false)">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Global variables to store service provider data
+let serviceProviderData = {};
+let appointmentsData = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize modals to prevent closing issues
+    initModals();
+    
+    // Fetch service provider stats
+    fetchServiceProviderStats();
+});
+
+function initModals() {
+    // Properly handle modal closing
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal(modal.id);
+            }
+        });
+    });
+    
+    // Close modals when clicking the close button
+    const closeButtons = document.querySelectorAll('.close');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            if (modal) {
+                closeModal(modal.id);
+            }
+        });
+    });
+}
+
+function fetchServiceProviderStats() {
+    fetch('/api/service_provider/stats')
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error(data.error);
+                return;
+            }
+            
+            // Store the data globally
+            serviceProviderData = data;
+            
+            // Update dashboard stats
+            document.getElementById('upcoming-appointments').textContent = data.upcoming_appointments;
+            document.getElementById('services-offered').textContent = data.services_offered;
+            document.getElementById('average-rating').textContent = data.average_rating;
+            document.getElementById('service-name').textContent = data.service_name;
+        })
+        .catch(error => console.error('Error fetching stats:', error));
+}
+
+function showAppointments() {
+    const modal = document.getElementById('appointments-modal');
+    modal.style.display = 'block';
+    
+    const appointmentsContainer = document.getElementById('appointments-container');
+    appointmentsContainer.innerHTML = `
+        <div style="text-align: center; padding: 2rem;">
+            <div class="loading-spinner" style="margin: 0 auto;"></div>
+            <p style="margin-top: 1rem;">Loading appointments...</p>
+        </div>
+    `;
+    
+    fetch('/api/service_provider/appointments')
+        .then(response => response.json())
+        .then(appointments => {
+            appointmentsData = appointments; // Store appointments globally
+            
+            if (appointments.error) {
+                showEmptyState('appointments-container', 'exclamation-circle', appointments.error);
+                return;
+            }
+            
+            if (appointments.length === 0) {
+                showEmptyState('appointments-container', 'calendar-times', 'You don\'t have any upcoming appointments');
+                return;
+            }
+            
+            renderAppointmentsTable(appointments);
+        })
+        .catch(error => {
+            console.error('Error fetching appointments:', error);
+            showEmptyState(
+                'appointments-container', 
+                'exclamation-circle', 
+                'Error loading appointments. Please try again later.',
+                true
+            );
+        });
+}
+
+function showEmptyState(containerId, icon, message, showRetry = false) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = `
+        <div class="empty-state">
+            <i class="fas fa-${icon}"></i>
+            <p>${message}</p>
+            ${showRetry ? '<button class="btn btn-primary" onclick="showAppointments()">Retry</button>' : ''}
+        </div>
+    `;
+}
+
+function renderAppointmentsTable(appointments) {
+    const container = document.getElementById('appointments-container');
+    
+    // Create table for appointments
+    const table = document.createElement('table');
+    table.className = 'appointments-table';
+    
+    // Add table header
+    const thead = document.createElement('thead');
+    thead.innerHTML = `
+        <tr>
+            <th>Date & Time</th>
+            <th>Duration</th>
+            <th>Customer</th>
+            <th>Email</th>
+            <th>Amount</th>
+            <th>Actions</th>
+        </tr>
+    `;
+    table.appendChild(thead);
+    
+    // Add table body
+    const tbody = document.createElement('tbody');
+    appointments.forEach((appt, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${appt.date}</td>
+            <td>${appt.duration}</td>
+            <td>${appt.customer_name}</td>
+            <td>${appt.customer_email}</td>
+            <td>$${appt.cost}</td>
+            <td>
+                <button class="btn btn-primary" onclick="editAppointment(${index})" style="padding: 0.4rem 0.75rem; font-size: 0.85rem;">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+    
+    container.innerHTML = '';
+    container.appendChild(table);
+}
+
+function editAppointment(index) {
+    const appointment = appointmentsData[index];
+    alert(`Editing appointment with ${appointment.customer_name} on ${appointment.date}\n\nIn a real app, this would open an edit form.`);
+    // You would implement actual editing functionality here
+}
+
+function showServiceDetails() {
+    const modal = document.getElementById('service-modal');
+    modal.style.display = 'block';
+    
+    const serviceDetails = document.getElementById('service-details');
+    serviceDetails.innerHTML = `
+        <div style="text-align: center; padding: 2rem;">
+            <div class="loading-spinner" style="margin: 0 auto;"></div>
+            <p style="margin-top: 1rem;">Loading service details...</p>
+        </div>
+    `;
+    
+    // Use the globally stored data or fetch fresh if needed
+    if (Object.keys(serviceProviderData).length === 0) {
+        fetchServiceProviderStats().then(() => renderServiceDetails());
+    } else {
+        renderServiceDetails();
+    }
+}
+
+function renderServiceDetails() {
+    const serviceDetails = document.getElementById('service-details');
+    
+    serviceDetails.innerHTML = `
+        <div>
+            <p><strong>Service Name:</strong> <span id="service-name-detail">${serviceProviderData.service_name}</span></p>
+            <p><strong>Description:</strong> <span id="service-description">Professional ${serviceProviderData.service_name.toLowerCase()} service</span></p>
+            <p><strong>Hourly Rate:</strong> $<span id="service-rate">${serviceProviderData.hourly_rate || '50'}</span></p>
+            <p><strong>Experience:</strong> <span id="service-experience">${serviceProviderData.experience || '5 years'}</span></p>
+            <p><strong>Location:</strong> <span id="service-location">${serviceProviderData.address || 'New York'}</span></p>
+            
+            <div style="margin-top: 20px;">
+                <button class="btn btn-primary" onclick="toggleServiceForm(true)">Edit Service Details</button>
+            </div>
+        </div>
+    `;
+    
+    // Pre-fill the edit form
+    document.getElementById('edit-service-name').value = serviceProviderData.service_name;
+    document.getElementById('edit-service-description').value = `Professional ${serviceProviderData.service_name.toLowerCase()} service`;
+    document.getElementById('edit-service-rate').value = serviceProviderData.hourly_rate || '50';
+    document.getElementById('edit-service-experience').value = serviceProviderData.experience || '5 years';
+    document.getElementById('edit-service-location').value = serviceProviderData.address || 'New York';
+}
+
+function toggleServiceForm(show) {
+    const detailsDiv = document.getElementById('service-details');
+    const formDiv = document.getElementById('service-form');
+    
+    if (show) {
+        detailsDiv.style.display = 'none';
+        formDiv.style.display = 'block';
+    } else {
+        detailsDiv.style.display = 'block';
+        formDiv.style.display = 'none';
+    }
+}
+
+function saveServiceDetails() {
+    const saveButton = document.querySelector('#service-form .btn-primary');
+    const spinner = document.getElementById('service-save-spinner');
+    
+    // Show loading spinner
+    saveButton.disabled = true;
+    spinner.style.display = 'inline-block';
+    
+    // Simulate API call
+    setTimeout(() => {
+        // Update the displayed details
+        document.getElementById('service-name-detail').textContent = document.getElementById('edit-service-name').value;
+        document.getElementById('service-description').textContent = document.getElementById('edit-service-description').value;
+        document.getElementById('service-rate').textContent = document.getElementById('edit-service-rate').value;
+        document.getElementById('service-experience').textContent = document.getElementById('edit-service-experience').value;
+        document.getElementById('service-location').textContent = document.getElementById('edit-service-location').value;
+        
+        // Update the service name on the dashboard
+        document.getElementById('service-name').textContent = document.getElementById('edit-service-name').value;
+        
+        // Hide the form and show details
+        toggleServiceForm(false);
+        
+        // Reset button state
+        saveButton.disabled = false;
+        spinner.style.display = 'none';
+        
+        // Show success message
+        showToast('Service details updated successfully!');
+    }, 1500);
+}
+
+function showProfile() {
+    const modal = document.getElementById('profile-modal');
+    modal.style.display = 'block';
+    
+    const profileDetails = document.getElementById('profile-details');
+    profileDetails.innerHTML = `
+        <div style="text-align: center; padding: 2rem;">
+            <div class="loading-spinner" style="margin: 0 auto;"></div>
+            <p style="margin-top: 1rem;">Loading profile details...</p>
+        </div>
+    `;
+    
+    // Use the globally stored data or fetch fresh if needed
+    if (Object.keys(serviceProviderData).length === 0) {
+        fetchServiceProviderStats().then(() => renderProfileDetails());
+    } else {
+        renderProfileDetails();
+    }
+}
+
+function renderProfileDetails() {
+    const profileDetails = document.getElementById('profile-details');
+    
+    profileDetails.innerHTML = `
+        <div>
+            <p><strong>Name:</strong> <span id="profile-name">${serviceProviderData.provider_name}</span></p>
+            <p><strong>Email:</strong> <span id="profile-email">${serviceProviderData.email || 'provider@example.com'}</span></p>
+            <p><strong>Phone:</strong> <span id="profile-phone">${serviceProviderData.phone || '123-456-7890'}</span></p>
+            <p><strong>Address:</strong> <span id="profile-address">${serviceProviderData.address || '123 Main St'}</span></p>
+            
+            <div style="margin-top: 20px;">
+                <button class="btn btn-primary" onclick="toggleProfileForm(true)">Edit Profile</button>
+            </div>
+        </div>
+    `;
+    
+    // Pre-fill the edit form
+    document.getElementById('edit-profile-name').value = serviceProviderData.provider_name;
+    document.getElementById('edit-profile-email').value = serviceProviderData.email || 'provider@example.com';
+    document.getElementById('edit-profile-phone').value = serviceProviderData.phone || '123-456-7890';
+    document.getElementById('edit-profile-address').value = serviceProviderData.address || '123 Main St';
+}
+
+function toggleProfileForm(show) {
+    const detailsDiv = document.getElementById('profile-details');
+    const formDiv = document.getElementById('profile-form');
+    
+    if (show) {
+        detailsDiv.style.display = 'none';
+        formDiv.style.display = 'block';
+    } else {
+        detailsDiv.style.display = 'block';
+        formDiv.style.display = 'none';
+    }
+}
+
+function saveProfileDetails() {
+    const saveButton = document.querySelector('#profile-form .btn-primary');
+    const spinner = document.getElementById('profile-save-spinner');
+    
+    // Show loading spinner
+    saveButton.disabled = true;
+    spinner.style.display = 'inline-block';
+    
+    // Simulate API call
+    setTimeout(() => {
+        // Update the displayed details
+        document.getElementById('profile-name').textContent = document.getElementById('edit-profile-name').value;
+        document.getElementById('profile-email').textContent = document.getElementById('edit-profile-email').value;
+        document.getElementById('profile-phone').textContent = document.getElementById('edit-profile-phone').value;
+        document.getElementById('profile-address').textContent = document.getElementById('edit-profile-address').value;
+        
+        // Hide the form and show details
+        toggleProfileForm(false);
+        
+        // Reset button state
+        saveButton.disabled = false;
+        spinner.style.display = 'none';
+        
+        // Show success message
+        showToast('Profile updated successfully!');
+    }, 1500);
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+function showToast(message) {
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.style.position = 'fixed';
+    toast.style.bottom = '20px';
+    toast.style.left = '50%';
+    toast.style.transform = 'translateX(-50%)';
+    toast.style.backgroundColor = '#4f46e5';
+    toast.style.color = 'white';
+    toast.style.padding = '12px 24px';
+    toast.style.borderRadius = '4px';
+    toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+    toast.style.zIndex = '1000';
+    toast.style.animation = 'fadeIn 0.3s ease';
+    toast.textContent = message;
+    
+    document.body.appendChild(toast);
+    
+    // Remove toast after 3 seconds
+    setTimeout(() => {
+        toast.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 300);
+    }, 3000);
+}
+
+// Close with escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            if (modal.style.display === 'block') {
+                closeModal(modal.id);
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

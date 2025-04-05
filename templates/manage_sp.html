@@ -1,92 +1,334 @@
-{%block title %}
-Manage Service Providers
-{% endblock %}
+{% extends "base.html" %}
 
-{% block style%}
+{% block title %}Manage Service Providers{% endblock %}
+
+{% block style %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<!-- <link rel='stylesheet' href="/static/css/style.css"> -->
-<!-- <link rel="stylesheet" href="/static/css/style(team1).css"> -->
-<!-- <link rel="stylesheet" href="/static/css/admin_dashboard.css"> -->
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 <style>
-    .navbar {
-        background-color: #28a745 !important;
-        /* Green bar on top */
-        color: white;
-        padding: 15px;
-        text-align: center;
-        font-size: 24px;
-        font-weight: bold;
+   
+   
+
+    /* Card Styles - More Compact Layout */
+    .provider-card {
+        border-radius: 10px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        padding: 18px;
+        margin-bottom: 25px;
+        background-color: white;
+        transition: transform 0.2s ease;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
     }
 
-    .card {
-        border-radius: 12px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        padding: 20px;
-        margin-bottom: 20px;
+    .provider-card:hover {
+        transform: translateY(-3px);
     }
 
-    .btn-container {
-        display: flex;
-        justify-content: center;
+    .provider-card h3 {
+        color: #28a745;
+        font-weight: 600;
+        font-size: 1.25rem;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 8px;
+        padding-left: 30px;
+    }
+
+    /* Grid Layout for Details and Documents Side-by-Side */
+    .provider-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         gap: 20px;
+        padding-left: 20px;
+       
+    }
+
+    @media (max-width: 768px) {
+        .provider-content {
+            grid-template-columns: 1fr;
+
+        }
+    }
+
+    .provider-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 12px;
+        margin-top: 50px;
+        margin-bottom: 15px;
+    }
+
+    .detail-item {
+        margin-bottom: 8px;
+        padding-left: 20px;
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: #555;
+        margin-right: 5px;
+        font-size: 0.9rem;
+    }
+
+    .detail-value {
+        color: #333;
+        font-size: 0.95rem;
+    }
+
+    .description-section {
+        grid-column: 1 / -1;
+    }
+
+    /* Document Section */
+    .documents-section {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 12px;
+    }
+
+    .documents-section h4 {
+        font-size: 1rem;
+        color: #444;
+        margin-bottom: 12px;
+        border-left: 3px solid #28a745;
+        padding-left: 8px;
+    }
+
+    .document-container {
+        display: flex;
+        width: 450px;
+        height: 400px;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        /* background-color: red; */
+    }
+    .document-item{
+        width: 100%;
     }
 
     iframe {
-        border: 2px solid #28a745;
-        border-radius: 8px;
+        /* border: 1px solid #dee2e6; */
+        border-radius: 6px;
+        width: 100%;
+        /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); */
+        /* transition: all 0.2s ease; */
+        /* width: 180px;
+        height: 240px; */
+    }
+
+    iframe:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Action Buttons */
+    .btn-container {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 15px;
+    }
+
+    .btn {
+        padding: 8px 20px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        border-radius: 5px;
+        transition: all 0.2s;
+    }
+
+    .btn i {
+        margin-right: 5px;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+        transform: translateY(-2px);
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+        transform: translateY(-2px);
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .debug-info {
+        font-size: 9px;
+        color: #999;
+        text-align: right;
+        margin-bottom: 4px;
+    }
+
+    /* Empty state */
+    .no-documents {
+        color: #6c757d;
+        background-color: #f8f9fa;
+        padding: 12px;
+        border-radius: 5px;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+    
+    /* Page header */
+    .page-header {
+        /* background-color: #f2f7f4; */
+        padding: 5px 0;
+        text-align: center;
+        margin-bottom: 50px;
+        border-bottom: 1px solid #e0e6e3;
+    }
+    
+    .page-header h1 {
+        font-size: 1.8rem;
+        color: #2c8442;
+        margin: 0;
+        font-weight: 600;
+        margin-top: 20px;
     }
 </style>
 {% endblock %}
 
-
-
-{%block content %}
-
-
-<div class="navbar">Manage Service Providers</div>
-<div class="container mt-4">
-    {% for service_provider in service_providers %}
-    <div class="card">
-        <h3 class="text-center">{{ service_provider.name }}'s Details</h3>
-        <hr>
-        <p><strong>Name:</strong> {{ service_provider.name }}</p>
-
-        <p><strong>City:</strong> {{ service_provider.address }}</p>
-        <p><strong>State:</strong> {{ service_provider.state }}</p>
-        <p><strong>Experience:</strong> {{ service_provider.experience }} years</p>
-        <p><strong>Hourly Rate:</strong> ${{ service_provider.hourly_rate }}</p>
-        <p><strong>Description:</strong> {{ service_provider.description }}</p>
-
-        <h4 class="mt-4">Uploaded Documents</h4>
-        <div class="d-flex justify-content-center flex-wrap">
-            {% if service_provider.documents is defined %}
-            {% for doc in service_provider.documents %}
-            <iframe
-                src="{{ url_for('static', filename='uploads/' + service_provider.document_folder + '/' + doc.filename) }}"
-                width="300" height="400" class="m-2"></iframe>
-            {% endfor %}
-            {% else %}
-            <p class="text-muted">No documents available</p>
-            {% endif %}
-        </div>
-
-        <div class="btn-container mt-4">
-
-            <div style="font-size:10px; color:#888; margin-bottom:5px;">
-                Debug - Approve URL: {{ url_for('approve_service_provider', sp_id=service_provider.service_id) }}
-            </div>
-            <button class="btn btn-success approve-btn"
-                data-url="{{ url_for('approve_service_provider', sp_id=service_provider.service_id) }}">Approve</button>
-            <button class="btn btn-danger reject-btn"
-                data-url="{{ url_for('reject_service_provider', sp_id=service_provider.service_id) }}">Reject</button>
-        </div>
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Manage Service Providers</h1>
     </div>
-    {% endfor %}
 </div>
+
+<div class="container">
+    {% if service_providers|length > 0 %}
+        {% for service_provider in service_providers %}
+        <div class="provider-card">
+            <h3>{{ service_provider.name }}'s Profile</h3>
+            
+            <div class="provider-content">
+                <div>
+                    <div class="provider-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Name:</span>
+                            <span class="detail-value">{{ service_provider.name }}</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">City:</span>
+                            <span class="detail-value">{{ service_provider.address }}</span>
+                        </div>
+                        
+                        <!-- <div class="detail-item">
+                            <span class="detail-label">State:</span>
+                            <span class="detail-value">{{ service_provider.state }}</span>
+                        </div> -->
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Experience:</span>
+                            <span class="detail-value">{{ service_provider.experience }} years</span>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">Hourly Rate:</span>
+                            <span class="detail-value">₹{{ service_provider.hourly_rate }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="description-section">
+                        <div class="detail-item">
+                            <span class="detail-label">Description:</span>
+                            <p class="detail-value mt-2">{{ service_provider.description }}</p>
+                        </div>
+                    </div>
+                </div>
+<!-- 
+                <div class="documents-section">
+                    <h4>Verification Documents</h4>
+                    <div class="document-container">
+                        {% if service_provider.documents is defined and service_provider.documents|length > 0 %}
+                            {% for doc in service_provider.documents %}
+                            <iframe
+                                src="{{ url_for('static', filename='uploads/' + service_provider.document_folder + '/' + doc.filename) }}"
+                                ></iframe>
+                            {% endfor %}
+                        {% else %}
+                            <div class="no-documents">No documents have been uploaded</div>
+                        {% endif %}
+                    </div>
+                </div> -->
+                <div class="documents-section">
+                    <h4>Verification Documents</h4>
+                    <div class="document-container">
+                        {% if service_provider.documents %}
+                            {% for doc in service_provider.documents %}
+                                <div class="document-item">
+                                    <iframe 
+                                        src="{{ url_for('static', filename=service_provider.document_folder + '/' + doc.filename) }}" 
+                                        width="100%" height="100%">
+                                    </iframe>
+                                    <br>
+                                    <a href="{{ url_for('static', filename=service_provider.document_folder + '/' + doc.filename) }}" 
+                                       target="_blank">
+                                        <i class="bi bi-file-earmark-text"></i> {{ doc.filename }}
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="no-documents">No documents uploaded</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- <div class="documents-section">
+                    <h4>Verification Documents</h4>
+                    <div class="document-container">
+                        {% if service_provider.documents %}
+                            {% for doc in service_provider.documents %}
+                            <div class="document-item">
+                                <a href="{{ url_for('static', filename=service_provider.document_folder + '/' + doc.filename) }}" 
+                                   target="_blank">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                    {{ doc.filename }}
+                                </a>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="no-documents">No documents uploaded</div>
+                        {% endif %}
+                    </div>
+                </div> -->
+            </div>
+
+            <!-- <div class="debug-info">
+                Debug - Approve URL: {{ url_for('approve_service_provider', sp_id=service_provider.service_id) }}
+            </div> -->
+            <div class="btn-container">
+                <button class="btn btn-success approve-btn"
+                    data-url="{{ url_for('approve_service_provider', sp_id=service_provider.service_id) }}">
+                    <i class="bi bi-check-circle"></i> Approve
+                </button>
+                <button class="btn btn-danger reject-btn"
+                    data-url="{{ url_for('reject_service_provider', sp_id=service_provider.service_id) }}">
+                    <i class="bi bi-x-circle"></i> Reject
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">No service providers awaiting approval.</div>
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{{ url_for('static', filename='Manage_sp.js') }}"></script>
 {% endblock %}
-
-<!-- </body>
-
-</html> -->

@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Dog Services
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<style>
+    /* Enhanced styles */
+    .mc {
+        padding: 2rem 0;
+    }
+    
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    
+    .header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    
+    .header h2 {
+        font-size: 2.2rem;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+    
+    .header p {
+        font-size: 1.1rem;
+        color: #666;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    
+    .tabs {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 2rem;
+    }
+    
+    .tab {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 30px;
+        background-color: #f0f0f0;
+        color: #333;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .tab:hover {
+        background-color: #e0e0e0;
+    }
+    
+    .tab.active {
+        background-color: #4a6fa5;
+        color: white;
+    }
+    
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 25px;
+        padding: 0 20px;
+    }
+    
+    .service-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .service-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+    
+    .card-image {
+        height: 200px;
+        overflow: hidden;
+    }
+    
+    .card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .service-card:hover .card-image img {
+        transform: scale(1.05);
+    }
+    
+    .card-content {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .card-category {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        background-color: #f0f0f0;
+        color: #555;
+    }
+    
+    .card-title {
+        font-size: 1.25rem;
+        margin-bottom: 10px;
+        color: #333;
+    }
+    
+    .card-description {
+        font-size: 0.95rem;
+        color: #666;
+        margin-bottom: 15px;
+        line-height: 1.5;
+        flex-grow: 1;
+    }
+    
+    .card-price {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #4a6fa5;
+        margin-top: auto;
+    }
+    
+    /* Category specific colors */
+    .category-grooming {
+        background-color: #ffebee;
+        color: #c62828;
+    }
+    
+    .category-therapies {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+    }
+    
+    .category-health {
+        background-color: #e3f2fd;
+        color: #1565c0;
+    }
+    
+    .category-training {
+        background-color: #fff8e1;
+        color: #ff8f00;
+    }
+    
+    .category-spa {
+        background-color: #f3e5f5;
+        color: #7b1fa2;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mc">
+    <!-- Main Content -->
+    <div class="container">
+        <div class="header">
+            <h2>Our Dog Services</h2>
+            <p>Comprehensive care services designed to keep your furry friend happy, healthy, and thriving</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" data-category="all">All Services</button>
+            <button class="tab" data-category="grooming">Grooming</button>
+            <button class="tab" data-category="therapies">Therapy</button>
+            <button class="tab" data-category="health">Health</button>
+            <button class="tab" data-category="training">Training</button>
+            <button class="tab" data-category="spa">Spa</button>
+        </div>
+        
+        <div class="services-grid" id="servicesGrid">
+            <!-- Cards will be inserted here by JavaScript from backend -->
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

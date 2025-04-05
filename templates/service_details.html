@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% block style %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/service_details.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+{% endblock %}
+{% block title %} Premium Pet Care - {{ provider.service_name }} {% endblock %}
+{% block content %}
+    <!-- Main Content -->
+        <!-- Navbar -->
+        <div class="navbar" id="navbar">
+            <h2>Service Details</h2>
+            <div class="nav-right">
+                <div class="cart-icon">
+                    <a href="/cart" title="View Cart">
+                        <i class="fas fa-shopping-cart fa-2x"></i>
+                        <span class="badge" id="cart-count">0</span>
+                    </a>
+                </div>
+                <div class="notification">
+                    <i class="fas fa-bell fa-2x"></i>
+                    <span class="badge">2</span>
+                </div>
+                <div class="profile-dropdown">
+                    <div class="profile" onclick="toggleDropdown()">
+                        <div class="profile-pic">{{ current_user.user_name[0] }}</div>
+                    </div>
+    
+                    <div class="dropdown-menu" id="profileDropdown">
+                        <p class="dropdown-username">{{ current_user.user_name }}</p>
+                        <div class="settings">
+                            <p>
+                                <a href="{{url_for('settings')}}">
+                                    <i class="fas fa-cog"></i>
+                                    Settings
+                                </a>
+                            </p>
+                        </div>
+                        <a href="{{ url_for('logout') }}">
+                            <i class="fas fa-lock"></i> Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="premium-service-card">
+                <div class="service-hero">
+                    <img src="https://images.unsplash.com/photo-1583511655826-05700d52f4d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="{{ provider.service_name }}">
+                    <div class="hero-content">
+                        <h1><i class="fas fa-crown"></i> Premium {{ provider.service_name }}</h1>
+                        <p class="provider">by {{ provider.name }}</p>
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                            <span>4.8 / 5 (124 reviews)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-body">
+                    <div class="details-section">
+                        <h2>Service Overview</h2>
+                        <div class="detail-grid" id="serviceDetails"></div>
+                    </div>
+
+                    <div class="booking-section">
+                        <h2>Book Your Appointment</h2>
+                        <form id="bookingForm">
+                            <div class="form-group">
+                                <label><i class="fas fa-calendar-alt"></i> Date</label>
+                                <input type="date" id="date" required>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-clock"></i> Time</label>
+                                <select id="time" required>
+                                    <option value="">Select a time</option>
+                                    <option value="09:00">9:00 AM</option>
+                                    <option value="11:00">11:00 AM</option>
+                                    <option value="13:00">1:00 PM</option>
+                                    <option value="15:00">3:00 PM</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-hourglass-half"></i> Duration</label>
+                                <select id="duration" required>
+                                    <option value="">Select duration</option>
+                                    <option value="1">1 Hour</option>
+                                    <option value="2">2 Hours</option>
+                                    <option value="3">3 Hours</option>
+                                </select>
+                            </div>
+                            <div class="cost-preview" id="costPreview"></div>
+                            <button type="submit" class="premium-book-btn">
+                                <i class="fas fa-calendar-check"></i> Reserve Now
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="reviews-section">
+                    <h2>Client Reviews</h2>
+                    <div class="review-grid" id="reviewList"></div>
+                </div>
+            </div>
+        </div>
+    
+    <!-- Booking Confirmation Modal -->
+    <div class="modal-overlay" id="bookingModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Confirm Your Booking</h3>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <div class="booking-summary">
+                    <h4>Booking Summary</h4>
+                    <div class="summary-item">
+                        <span>Service:</span>
+                        <span id="summaryService"></span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Provider:</span>
+                        <span id="summaryProvider"></span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Date:</span>
+                        <span id="summaryDate"></span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Time:</span>
+                        <span id="summaryTime"></span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Duration:</span>
+                        <span id="summaryDuration"></span>
+                    </div>
+                    <div class="summary-total">
+                        <span>Total:</span>
+                        <span id="summaryTotal"></span>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-cancel" id="cancelBooking">Cancel</button>
+                    <button class="modal-confirm" id="confirmBooking">Confirm Booking</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-container">
+            <div class="modal-header success-header">
+                <h3>Booking Successful!</h3>
+                <button class="modal-close" id="closeSuccessModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="success-icon">
+                    <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                        <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+                        <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                    </svg>
+                </div>
+                <p style="text-align: center; font-size: 18px; margin-bottom: 20px;">
+                    Your appointment has been successfully booked!
+                </p>
+                <p style="text-align: center; color: #666; margin-bottom: 30px;">
+                    We've sent a confirmation to your email with all the details.
+                </p>
+                <div class="modal-actions">
+                    <button class="modal-confirm" id="closeSuccess">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Success Header */
+        .success-header {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        /* Success Animation - New SVG Checkmark */
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 30px;
+            display: block;
+        }
+        
+        .checkmark {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 2;
+            stroke: #4CAF50;
+            stroke-miterlimit: 10;
+            margin: 10% auto;
+            box-shadow: inset 0px 0px 0px #4CAF50;
+            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+        }
+        
+        .checkmark-circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 2;
+            stroke-miterlimit: 10;
+            stroke: #4CAF50;
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+        
+        .checkmark-check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+        
+        @keyframes stroke {
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+        
+        @keyframes scale {
+            0%, 100% {
+                transform: none;
+            }
+            50% {
+                transform: scale3d(1.1, 1.1, 1);
+            }
+        }
+        
+        @keyframes fill {
+            100% {
+                box-shadow: inset 0px 0px 0px 30px transparent;
+            }
+        }
+    </style>
+
+    <script id="provider-data" type="application/json">
+        {{ provider | tojson }}
+    </script>
+    <script src="{{ url_for('static', filename='js/service_details.js') }}"></script>
+{% endblock %}

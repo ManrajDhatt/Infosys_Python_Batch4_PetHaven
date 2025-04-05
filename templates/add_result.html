@@ -16,7 +16,7 @@
         <tbody>
             {% for reg in registrations %}
             <tr>
-                <td>{{ reg.user.username }}</td>
+                <td>{{ reg.user.user_name }}</td>
                 <td>{{ reg.pet_name }}</td>
                 <td>
                     <input type="number" name="position_{{ reg.id }}" 

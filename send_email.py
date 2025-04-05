@@ -209,3 +209,57 @@ def send_reminder_email(email, username, event):
 
         mail.send(msg)  # Send the email
 
+
+def send_password_reset_email(email, reset_link):
+    with current_app.app_context():
+        sender_email = current_app.config.get('MAIL_DEFAULT_SENDER')
+
+        subject = "🔑 Password Reset Request"
+
+        message_body = f"""
+        <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+            <div style="background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); max-width: 600px; margin: auto;">
+
+                <h1 style="color: #4374E0; text-align: center;">🔑 Reset Your Password</h1>
+
+                <p style="font-size: 16px; color: #333; text-align: center;">
+                    Hi, <br> You have requested to reset your password. Please click the button below to set a new password:
+                </p>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <a href="{reset_link}" style="background-color: #4374E0; color: #fff; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-size: 16px;">
+                        Reset Password
+                    </a>
+                </div>
+
+                <p style="text-align: center; font-size: 14px; color: #666; margin-top: 20px;">
+                    If you did not request this, please ignore this email.
+                </p>
+
+                <p style="text-align: center; font-size: 16px; font-weight: bold; color: #333;">
+                    Best Regards, <br>
+                    🐾 Pet Haven Team 🐾
+                </p>
+            </div>
+        </div>
+        """
+
+        msg = Message(subject=subject, sender=sender_email, recipients=[email], html=message_body)
+
+        mail.send(msg)  # Send the email
+
+
+def send_email(subject, recipient, body):
+    try:
+        with current_app.app_context():
+            msg = Message(
+                subject=subject,
+                sender=current_app.config['MAIL_DEFAULT_SENDER'],  # Fixed syntax
+                recipients=[recipient]  # Use the correct parameter name
+            )
+            msg.body = body  # Plain text content
+            
+            mail.send(msg)
+            print(f"Email sent successfully to {recipient}")
+    except Exception as e:
+        print(f"Failed to send email: {str(e)}")

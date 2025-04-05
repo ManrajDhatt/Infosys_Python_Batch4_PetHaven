@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+{% block title %} Pet Haven - Order Confirmation {% endblock %}
+{% block style %}
+    <link rel="stylesheet" href="static/css/order_confirm.css" />
+    <style>
+      /* Success Notification Styles */
+      .notification-popup {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        padding: 0;
+        width: 320px;
+        overflow: hidden;
+        transform: translateX(400px);
+        opacity: 0;
+        transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      }
+      
+      /* Styles for the cart link in the navbar */
+      .cart-link {
+        display: flex;
+        align-items: center;
+        background-color: #007bff;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 4px;
+        text-decoration: none;
+        margin-right: 15px;
+      }
+      
+      .cart-link i {
+        margin-right: 5px;
+      }
+      
+      #cart-count {
+        background-color: #dc3545;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 50%;
+        font-size: 12px;
+      }
+      
+      .notification-popup.show {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      
+      .notification-header {
+        padding: 12px 15px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: #4CAF50;
+        color: white;
+      }
+      
+      .notification-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+      }
+      
+      .notification-body {
+        padding: 15px;
+        display: flex;
+        align-items: center;
+      }
+      
+      .notification-icon {
+        width: 50px;
+        height: 50px;
+        margin-right: 15px;
+        border-radius: 50%;
+        background-color: rgba(76, 175, 80, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .notification-icon i {
+        color: #4CAF50;
+        font-size: 24px;
+      }
+      
+      .notification-content {
+        flex: 1;
+      }
+      
+      .notification-title {
+        font-weight: bold;
+        margin: 0 0 5px 0;
+      }
+      
+      .notification-message {
+        margin: 0;
+        color: #666;
+      }
+      
+      .notification-actions {
+        margin-top: 10px;
+      }
+      
+      .notification-btn {
+        padding: 6px 12px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+      }
+      
+      .notification-btn:hover {
+        background-color: #3e8e41;
+      }
+      
+      /* Mobile Responsive Styles */
+      @media (max-width: 768px) {
+        .notification-popup {
+          width: 90%;
+          max-width: 320px;
+          top: 10px;
+          right: 10px;
+        }
+        
+        .notification-body {
+          flex-direction: column;
+          text-align: center;
+        }
+        
+        .notification-icon {
+          margin-right: 0;
+          margin-bottom: 10px;
+        }
+      }
+      
+      @media (max-width: 576px) {
+        .notification-popup {
+          width: calc(100% - 20px);
+          max-width: none;
+        }
+      }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <!-- Main Content -->
+      <!-- Navbar -->
+      <div class="navbar" id="navbar">
+          <h2>Order Confirmation</h2>
+          <div class="nav-right">
+              <div class="notification">
+                  <i class="fas fa-bell fa-2x"></i>
+                  <span class="badge">2</span>
+              </div>
+              <a href="/cart" class="cart-link">
+                <i class="fas fa-shopping-cart"></i>
+                <span id="cart-count">0</span>
+              </a>
+              <div class="profile-dropdown">
+                <div class="profile" onclick="toggleDropdown()">
+                    <div class="profile-pic">{{ current_user.user_name[0] }}</div>
+                </div>
+
+                <div class="dropdown-menu" id="profileDropdown">
+                    <p class="dropdown-username">{{ current_user.user_name }}</p>
+                    <div class="settings">
+                        <p>
+                            <a href="{{url_for('settings')}}">
+                                <i class="fas fa-cog"></i>
+                                Settings
+                            </a>
+                        </p>
+                    </div>
+                    <a href="{{ url_for('logout') }}">
+                        <i class="fas fa-lock"></i> Logout</a>
+                </div>
+            </div>
+          </div>
+      </div>
+
+    <main class="order-container">
+      <div class="order-summary">
+          <div class="order-header">
+              <i class="fas fa-check-circle"></i>
+              <h2>Thanks for your order!</h2>
+              <p>The order confirmation has been sent to your mail</p>
+          </div>
+
+          <div class="order-details">
+              <div class="order-info">
+                  <h3>Transaction Date</h3>
+                  <p><span id="current-date"></span></p>
+              </div>
+              <div class="order-info">
+                  <h3>Payment Method</h3>
+                  <p id="selected-payment"></p>
+              </div>
+              <div class="order-info">
+                  <h3>Shipping Method</h3>
+                  <p>Express delivery (1-3 business days)</p>
+              </div>
+          </div>
+
+          {% if cart %}
+            <div class="order-items">
+              <h3>Your Order</h3>
+              {% for item in cart %}
+                <div class="item" data-id="{{ item.id }}">
+                  <div class="item-info">
+                    {% if item.type == "dog" %}
+                      <p class="item-name">{{ item.name }}</p>
+                      <p class="item-breed">Breed: {{ item.breed }}</p>
+                      <p class="item-quantity">x1</p>
+                      <p class="item-price">Rs.{{ item.price }}</p>
+                    {% else %}
+                      <p class="item-name">Service: {{ item.service_name }}</p>
+                      <p class="item-provider">Provider: {{ item.provider_id }}</p>
+                      <p class="item-date">Date: {{ item.date }}</p>
+                      <p class="item-duration">Duration: {{ item.duration }} Hours</p>
+                      <p class="item-price">Rs.{{ item.total_cost }}</p>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+            <div class="order-pricing">
+              <div class="price-row">
+                <span>Subtotal</span>
+                <span>Rs.{{ total_price }}</span>
+              </div>
+              <div class="price-row">
+                <span>Shipment cost</span>
+                <span>Free</span>
+              </div>
+              <div class="price-row grand-total">
+                <span>Grand total</span>
+                <span>Rs.{{ total_price }}</span>
+              </div>
+            </div>
+          {% endif %}
+
+          <a class="continue-shopping" href="{{ url_for('dashboard') }}">Continue Shopping</a>
+      </div>
+  </main>
+
+  <!-- Success Notification for Order Placed -->
+  <div id="orderSuccessNotification" class="notification-popup">
+    <div class="notification-header">
+      <h3>Order Placed Successfully</h3>
+      <button class="notification-close" onclick="closeNotification('orderSuccessNotification')">&times;</button>
+    </div>
+    <div class="notification-body">
+      <div class="notification-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="notification-content">
+        <h4 class="notification-title">Thank you for your order!</h4>
+        <p class="notification-message">Your order has been processed successfully. We'll start preparing your items right away.</p>
+        <div class="notification-actions">
+          <a href="{{ url_for('dashboard') }}" class="notification-btn">Return to Homepage</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <script>
+      // Function to get today's date in a readable format
+      function formatDate() {
+          const today = new Date();
+          const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+          return today.toLocaleDateString('en-US', options);
+      }
+      // Set today's date in the span
+      document.getElementById('current-date').textContent = formatDate();
+    
+      // Get stored payment method from localStorage
+      document.addEventListener("DOMContentLoaded", function () {
+        const paymentMethod = localStorage.getItem("paymentMethod");
+        if (paymentMethod && paymentMethod !== "Not Selected") {
+            document.getElementById("selected-payment").textContent = paymentMethod;
+        } else {
+            document.getElementById("selected-payment").textContent = "Not Selected";
+        }
+        
+        // Show the order success notification
+        showNotification('orderSuccessNotification');
+      });
+      
+      // Function to show notification
+      function showNotification(notificationId) {
+        const notification = document.getElementById(notificationId);
+        if (notification) {
+          notification.classList.add('show');
+          
+          // Auto hide after 10 seconds
+          setTimeout(() => {
+            closeNotification(notificationId);
+          }, 10000);
+        }
+      }
+      
+      // Function to close notification
+      function closeNotification(notificationId) {
+        const notification = document.getElementById(notificationId);
+        if (notification) {
+          notification.classList.remove('show');
+        }
+      }
+    </script>
+
+    <script src="static/js/script.js"></script>
+{% endblock %}

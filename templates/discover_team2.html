@@ -1,5 +1,111 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
+{% block style %}
+<style>
+    .dashboard-container {
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .cards-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        /* margin-top: 2rem; */
+    }
+    
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2); /* Permanent shadow */
+        transform: translateY(-10px); /* Permanent lifted effect */
+        color: white;
+        position: relative;
+        height: 250px;
+        text-decoration: none;
+    }
+    
+    .card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--card-color);
+        z-index: -1;
+    }
+    
+    .card-content {
+        padding: 2rem;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .card-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        opacity: 0.8;
+    }
+    
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    
+    .card-description {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+    }
+    
+    .card-link {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: rgba(255,255,255,0.3); /* Permanent background effect */
+        border-radius: 50px;
+        color: white;
+        font-weight: 500;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255,255,255,0.2);
+        text-decoration: none;
+    }
+    .welcome-subtext{
+        font-size: xx-large;
+        color: rgb(45, 50, 45);
+        font-weight: bolder;
+        margin-bottom: 20px;
+
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<h1>Dog Marketplace -> |||| Team 2 ||||</h1>
+<div class="dashboard-container">
+    <!-- <h1 class="welcome-message">Welcome back, {{ current_user.user_name }}!</h1> -->
+    <p class="welcome-subtext">What would you like to do today?</p>
+    
+    <div class="cards-container">
+        {% for card in cards %}
+        <a href="{{ card.url }}" class="card" style="--card-color: {{ card.color }}">
+            <div class="card-content">
+                <div>
+                    <div class="card-icon">
+                        <i class="fas {{ card.icon }}"></i>
+                    </div>
+                    <h2 class="card-title">{{ card.title }}</h2>
+                    <p class="card-description">{{ card.description }}</p>
+                </div>
+                <span class="card-link">Explore</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+
+{% block style %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/my_bookings.css') }}">
+<style>
+  .bookings-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  
+  .bookings-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  
+  .bookings-header h1 {
+    font-size: 2.5rem;
+    color: #1e293b;
+    margin-bottom: 1rem;
+  }
+  
+  .bookings-header p {
+    color: #64748b;
+    font-size: 1.1rem;
+  }
+  
+  .bookings-section {
+    margin-bottom: 3rem;
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+    color: #1e293b;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+  }
+  
+  .section-title i {
+    margin-right: 0.75rem;
+    color: #6366f1;
+  }
+  
+  .booking-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .booking-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-left: 4px solid #6366f1;
+  }
+  
+  .booking-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  }
+  
+  .booking-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .booking-service {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+  }
+  
+  .booking-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+  
+  .status-upcoming {
+    background-color: #ecfdf5;
+    color: #059669;
+  }
+  
+  .status-completed {
+    background-color: #eff6ff;
+    color: #2563eb;
+  }
+  
+  .booking-details {
+    margin-bottom: 1.5rem;
+  }
+  
+  .booking-detail {
+    display: flex;
+    margin-bottom: 0.75rem;
+  }
+  
+  .booking-detail i {
+    width: 24px;
+    color: #64748b;
+    margin-right: 0.75rem;
+  }
+  
+  .booking-detail span {
+    color: #475569;
+  }
+  
+  .booking-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+  
+  .btn-primary {
+    background-color: #6366f1;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    font-size: 0.9rem;
+    flex: 1;
+  }
+  
+  .btn-primary:hover {
+    background-color: #4f46e5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+  }
+  
+  .btn-outline {
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #475569;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    font-size: 0.9rem;
+    flex: 1;
+  }
+  
+  .btn-outline:hover {
+    background-color: #f8fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #64748b;
+    grid-column: 1 / -1;
+  }
+  
+  .empty-state i {
+    font-size: 3rem;
+    color: #cbd5e1;
+    margin-bottom: 1rem;
+  }
+  
+  .empty-state p {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  @media (max-width: 768px) {
+    .booking-cards {
+      grid-template-columns: 1fr;
+    }
+    
+    .bookings-header h1 {
+      font-size: 2rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block title %}My Bookings{% endblock %}
+
+{% block content %}
+<div class="bookings-container">
+  <div class="bookings-header">
+    <h1>My Bookings</h1>
+    <p>Manage your upcoming and past service appointments</p>
+  </div>
+  
+  <!-- Upcoming Bookings Section -->
+  <div class="bookings-section">
+    <h2 class="section-title">
+      <i class="fas fa-calendar-alt"></i> Upcoming Bookings
+    </h2>
+    
+    <div class="booking-cards">
+      {% if upcoming_bookings %}
+        {% for booking, detail in upcoming_bookings %}
+        <div class="booking-card">
+          <div class="booking-card-header">
+            <span class="booking-service">{{ detail.service_name }}</span>
+            <span class="booking-status status-upcoming">Upcoming</span>
+          </div>
+          
+          <div class="booking-details">
+            <div class="booking-detail">
+              <i class="fas fa-calendar-day"></i>
+              <span>{{ booking.booking_date.strftime('%A, %B %d, %Y') }}</span>
+            </div>
+            <div class="booking-detail">
+              <i class="fas fa-clock"></i>
+              <span>{{ booking.booking_date.strftime('%I:%M %p') }} ({{ booking.duration.strftime('%H:%M') }} hours)</span>
+            </div>
+            <div class="booking-detail">
+              <i class="fas fa-rupee-sign"></i>
+              <span>₹{{ booking.total_cost }}</span>
+            </div>
+            <div class="booking-detail">
+              <i class="fas fa-info-circle"></i>
+              <span>Booking ID: {{ booking.booking_id[:8]|upper }}</span>
+            </div>
+          </div>
+          
+          <!-- <div class="booking-actions">
+            <a href="#" class="btn-outline" onclick="cancelBooking('{{ booking.booking_id }}')">
+              <i class="fas fa-times"></i> Cancel
+            </a>
+            <a href="#" class="btn-primary" onclick="rescheduleBooking('{{ booking.booking_id }}')">
+              <i class="fas fa-calendar-edit"></i> Reschedule
+            </a>
+          </div> -->
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">
+          <i class="fas fa-calendar-plus"></i>
+          <p>You don't have any upcoming bookings</p>
+          <a href="{{ url_for('services') }}" class="btn-primary">
+            <i class="fas fa-plus"></i> Book a Service
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  
+  <!-- Past Bookings Section -->
+  <div class="bookings-section">
+    <h2 class="section-title">
+      <i class="fas fa-history"></i> Past Bookings
+    </h2>
+    
+    <div class="booking-cards">
+      {% if past_bookings %}
+        {% for booking, detail in past_bookings %}
+        <div class="booking-card">
+          <div class="booking-card-header">
+            <span class="booking-service">{{ detail.service_name }}</span>
+            <span class="booking-status status-completed">Completed</span>
+          </div>
+          
+          <div class="booking-details">
+            <div class="booking-detail">
+              <i class="fas fa-calendar-day"></i>
+              <span>{{ booking.booking_date.strftime('%A, %B %d, %Y') }}</span>
+            </div>
+            <div class="booking-detail">
+              <i class="fas fa-clock"></i>
+              <span>{{ booking.booking_date.strftime('%I:%M %p') }} ({{ booking.duration.strftime('%H:%M') }} hours)</span>
+            </div>
+            <div class="booking-detail">
+              <i class="fas fa-rupee-sign"></i>
+              <span>₹{{ booking.total_cost }}</span>
+            </div>
+            <div class="booking-detail">
+              <i class="fas fa-info-circle"></i>
+              <span>Booking ID: {{ booking.booking_id[:8]|upper }}</span>
+            </div>
+          </div>
+          
+          <div class="booking-actions">
+            <a href="#" class="btn-outline" onclick="viewDetails('{{ booking.booking_id }}')">
+              <i class="fas fa-eye"></i> Details
+            </a>
+            <a href="#" class="btn-primary" onclick="bookAgain('{{ detail.service_id }}')">
+              <i class="fas fa-redo"></i> Book Again
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">
+          <i class="fas fa-calendar-check"></i>
+          <p>Your past bookings will appear here</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

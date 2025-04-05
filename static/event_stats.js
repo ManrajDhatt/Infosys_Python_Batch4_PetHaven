@@ -40,7 +40,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 data: participants,
                 backgroundColor: "rgba(85, 21, 248, 0.8)",
                 borderWidth: 1,
-                borderColor: "rgba(85, 21, 248, 1)"
+                borderColor: "rgba(85, 21, 248, 1)",
+                maxBarThickness:50
             }]
         },
         options: {
